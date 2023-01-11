@@ -176,8 +176,7 @@
 
                         <lvc:CartesianChart Grid.Row="1"
                                             Content="{Binding LocationChart, UpdateSourceTrigger=PropertyChanged}"
-                                            Background="Transparent"
-                                            Margin="20,5,20,20"/>
+                                            Background="Transparent" Margin="20,5,20,20"/>
                     </Grid>
                 </Border>
             </Border>
