@@ -1,0 +1,83 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="bb0eb0mc.tq3~" />
+    <None Remove="Fonts\LiebherrHead-Black.otf" />
+    <None Remove="Fonts\LiebherrHead-Regular.otf" />
+    <None Remove="Fonts\LiebherrText-Bold.otf" />
+    <None Remove="Fonts\LiebherrText-BoldItalic.otf" />
+    <None Remove="Fonts\LiebherrText-CondensedBold.otf" />
+    <None Remove="Fonts\LiebherrText-CondensedRegular.otf" />
+    <None Remove="Fonts\LiebherrText-Medium.otf" />
+    <None Remove="Fonts\LiebherrText-MediumItalic.otf" />
+    <None Remove="Fonts\LiebherrText-Regular.otf" />
+    <None Remove="Fonts\LiebherrText-RegularItalic.otf" />
+    <None Remove="Icons\NewCrane.png" />
+    <None Remove="Icons\NewCraneZoom.png" />
+    <None Remove="Icons\NewMillingCutter.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\NewCrane.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\NewCraneZoom.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\NewMillingCutter.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiveCharts" Version="0.9.7" />
+    <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+    <PackageReference Include="MaterialDesignColors" Version="2.0.4" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SealWatch.Data\SealWatch.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Fonts\LiebherrHead-Black.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrHead-Regular.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrText-Bold.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrText-BoldItalic.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrText-CondensedBold.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrText-CondensedRegular.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrText-Medium.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrText-MediumItalic.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrText-Regular.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Fonts\LiebherrText-RegularItalic.otf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+</Project>

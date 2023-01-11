@@ -1,0 +1,46 @@
+﻿<Window x:Class="SealWatch.Wpf.Views.Dialogs.HistoryView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:SealWatch.Wpf.Views.Dialogs"
+        mc:Ignorable="d"
+        Title="HistoryView" Height="450" Width="800"
+        AllowsTransparency="True" WindowStyle="None"
+        WindowStartupLocation="CenterOwner"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        Loaded="Window_Loaded">
+
+    <Window.Background>
+        <SolidColorBrush Opacity="0" Color="White"/>
+    </Window.Background>
+
+    <Border Style="{StaticResource OuterBorder}">
+        <Border Style="{StaticResource InnerBorder}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Button Content="{materialDesign:PackIcon Kind=Close, Size=20}"
+                        Command="{Binding CloseCommand}"
+                        HorizontalAlignment="Right"/>
+
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding History, UpdateSourceTrigger=PropertyChanged}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderDefault}"
+                          Style="{StaticResource DataGridDefault}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Eigenschaft" Binding="{Binding Property}" Width="3*"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Alter Wert" Binding="{Binding OldValue}" Width="3*"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Neuer Wert" Binding="{Binding NewValue}" Width="3*"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Geändert von" Binding="{Binding ChangeUser}" Width="4*"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Geändert am" Binding="{Binding ChangeDate, StringFormat=yyyy-MM-dd  hh:ss}" Width="4*"></DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Border>
+</Window>

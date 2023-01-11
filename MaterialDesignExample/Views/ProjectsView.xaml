@@ -1,0 +1,179 @@
+﻿<UserControl x:Class="SealWatch.Wpf.Views.ProjectsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converter="clr-namespace:SealWatch.Wpf.Converter"
+             xmlns:local="clr-namespace:SealWatch.Wpf.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="980" 
+             d:DesignWidth="1600"
+             Background="White">
+
+    <UserControl.Resources>
+        <Style x:Key="RadioButtonTab" BasedOn="{StaticResource RadioButtonDefault}" TargetType="RadioButton">
+            <Setter Property="Margin" Value="6,0,6,0"/>
+        </Style>
+
+        <Style x:Key="ToolBarButton" BasedOn="{StaticResource ToolBarButtonDefault}" TargetType="Button">
+            <Setter Property="Margin" Value="5,0,5,0"/>
+            <Setter Property="Command" Value="{Binding ProjectToolCommand}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="7*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Margin="10,10,10,10"
+                Style="{StaticResource OuterBorderNoShadow}">
+            <Border Style="{StaticResource InnerBorder}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="6"/>
+                    </Grid.RowDefinitions>
+
+                    <!--Menu navigation-->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="0,16,0,0">
+                        <StackPanel.Resources>
+                            <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Amber" SecondaryColor="Lime" />
+                        </StackPanel.Resources>
+
+                        <RadioButton Content="Offen"
+                                     Command="{Binding ChangeProjectType}" CommandParameter="All"
+                                     IsChecked="True"
+                                     Style="{StaticResource RadioButtonTab}"/>
+                        <RadioButton Content="Gelöschte"
+                                     Command="{Binding ChangeProjectType}" CommandParameter="Deleted"
+                                     Style="{StaticResource RadioButtonTab}"/>
+                        <RadioButton Content="Erledigte"
+                                     Command="{Binding ChangeProjectType}" CommandParameter="Done"
+                                     Style="{StaticResource RadioButtonTab}"/>
+                    </StackPanel>
+                    
+                    <!--Projects-->
+                    <DataGrid Grid.Row="1"
+                              Background="Transparent"
+                              ItemsSource="{Binding Projects, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{Binding SelectedProject, UpdateSourceTrigger=PropertyChanged}"
+                              ColumnHeaderStyle="{StaticResource DataGridColumnHeaderDefault}"
+                              Style="{StaticResource DataGridDefault}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Standort" Binding="{Binding Location}" Width="150"/>
+                            <DataGridTextColumn Header="Lamellen" Binding="{Binding Blades}" Width="3*"/>
+                            <DataGridTextColumn Header="Tiefe [m]" Binding="{Binding SlitDepth_m}" Width="3*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!--Toolbox-->
+                    <ToolBar Grid.Row="2" ClipToBounds="False" Background="White" Style="{DynamicResource MaterialDesignToolBar}">
+                        <Button ToolTip="Hinzufügen"
+                                Command="{Binding NewProjectCommand}" CommandParameter="ProjectAddDialog"
+                                Content="{materialDesign:PackIcon Kind=PlusCircleOutline, Size=28}" Style="{StaticResource ToolBarButton}"/>
+                        <Button ToolTip="Editieren"
+                                Command="{Binding ProjectToolCommand}" CommandParameter="ProjectEditDialog"
+                                Content="{materialDesign:PackIcon Kind=SquareEditOutline, Size=28}" Style="{StaticResource ToolBarButton}"/>
+                        <Separator Height="20"/>
+                        <Button ToolTip="Gelöscht markieren"
+                                Command="{Binding ProjectToolCommand}" CommandParameter="ProjectDelete"
+                                Content="{materialDesign:PackIcon Kind=DeleteOutline, Size=28}" Style="{StaticResource ToolBarButton}"/>
+                        <Button ToolTip="Erledigt markieren"
+                                Command="{Binding ProjectToolCommand}" CommandParameter="ProjectDone"
+                                Content="{materialDesign:PackIcon Kind=Done, Size=28}" Style="{StaticResource ToolBarButton}"/>
+                        <Separator Height="20"/>
+                        <Button ToolTip="Verlauf"
+                                Command="{Binding ProjectToolCommand}" CommandParameter="ProjectHistoryDialog"
+                                Content="{materialDesign:PackIcon Kind=History, Size=28}" Style="{StaticResource ToolBarButton}"/>
+                        <Button ToolTip="Details"
+                                Command="{Binding ProjectToolCommand}" CommandParameter="ProjectDetailsDialog"
+                                Content="{materialDesign:PackIcon Kind=InfoOutline, Size=28}" Style="{StaticResource ToolBarButton}"/>
+                    </ToolBar>
+                </Grid>
+            </Border>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="0,30,40,40">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!--Menu bar-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0"
+                       Content="  Fräsenanzahl:"
+                       VerticalAlignment="Center"
+                       Style="{StaticResource Label_LiebherrTitle}"/>
+
+                <Label Grid.Column="1"
+                       Content="{Binding SelectedProject.Cutters.Count}"
+                       VerticalAlignment="Center"
+                       FontSize="17"
+                       Style="{StaticResource Label_LiebherrText}"/>
+
+                <!--Search-->
+                <TextBox Grid.Column="3"
+                         Width="204" Height="30"
+                         materialDesign:HintAssist.Hint="Suche ..."
+                         Text="{Binding CutterSearchText,UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{StaticResource TextBoxDefault}"/>
+
+                <!--Toolbox-->
+                <StackPanel Grid.Column="6" Orientation="Horizontal">
+                    <Button Command="{Binding ProjectToolCommand}" CommandParameter="CutterAddDialog" ToolTip="Hinzufügen"
+                            Content="{materialDesign:PackIcon Kind=PlusCircleOutline, Size=30}" Style="{StaticResource ToolBarButtonDefault}"/>
+
+                    <Button Command="{Binding CutterToolCommand}" CommandParameter="CutterEditDialog" ToolTip="Bearbeiten"
+                            Content="{materialDesign:PackIcon Kind=SquareEditOutline, Size=30}" Style="{StaticResource ToolBarButtonDefault}"/>
+
+                    <Button Command="{Binding CutterToolCommand}" CommandParameter="CutterDelete" ToolTip="Löschen"
+                            Content="{materialDesign:PackIcon Kind=DeleteOutline, Size=30}" Style="{StaticResource ToolBarButtonDefault}"/>
+                </StackPanel>
+
+            </Grid>
+
+            <!--Cutter cards-->
+            <Grid Grid.Row="2">
+                <StackPanel VerticalAlignment="Center"
+                            Visibility="{Binding NoCuttersAvailable, Converter={StaticResource BooleanToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}">
+                    <Label Content="Keine Fräse(n) gefunden" 
+                           Style="{StaticResource Label_LiebherrBigTitle}"/>
+                    <Label Content="Wählen Sie ein Projekt aus oder fügen Sie eine Fräse hinzu" 
+                           HorizontalAlignment="Center"
+                           Style="{StaticResource Label_LiebherrText}"/>
+                </StackPanel>
+      
+                <ListBox BorderBrush="Transparent"
+                         HorizontalContentAlignment="Center"
+                         SelectionChanged="ListBox_SelectionChanged"
+                         ItemsSource="{Binding CutterCards, UpdateSourceTrigger=PropertyChanged}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Margin="0"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</UserControl>

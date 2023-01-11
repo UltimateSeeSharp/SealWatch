@@ -1,0 +1,258 @@
+﻿<UserControl x:Class="SealWatch.Wpf.Views.CalendarPlanerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converter="clr-namespace:SealWatch.Wpf.Converter"
+             xmlns:local="clr-namespace:SealWatch.Wpf.Views"
+             mc:Ignorable="d" 
+             Background="White"
+             d:DesignHeight="980" 
+             d:DesignWidth="1600"
+             Loaded="UserControl_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="RadioButtonTab" BasedOn="{StaticResource RadioButtonDefault}" TargetType="RadioButton">
+            <Setter Property="Margin" Value="6,0,6,0"/>
+        </Style>
+
+        <Style x:Key="ToolBarButton" BasedOn="{StaticResource ToolBarButtonDefault}" TargetType="Button">
+            <Setter Property="Margin" Value="5,0,5,0"/>
+            <Setter Property="Command" Value="{Binding ProjectToolCommand}"/>
+        </Style>
+
+        <Style x:Key="CustomCalendarStyle" TargetType="{x:Type Calendar}">
+            <Setter Property="Margin" Value="10,0,10,0" />
+            <Setter Property="Background" Value="White"></Setter>
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="IsManipulationEnabled" Value="False"></Setter>
+            <Setter Property="SelectionMode" Value="SingleRange"></Setter>
+            <Setter Property="IsTodayHighlighted" Value="True"></Setter>
+            <Setter Property="BorderBrush" Value="{StaticResource LwnLightGray}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
+
+        <Style x:Key="HeaderTextBox" BasedOn="{StaticResource TextBoxDefault}" TargetType="TextBox">
+            <Setter Property="Margin" Value="15,13,15,13"/>
+            <Setter Property="materialDesign:HintAssist.Hint" Value="..."/>
+            <Setter Property="IsManipulationEnabled" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+        </Style>
+
+        <converter:CutterAlreadyFailedForegroundConverter x:Key="CutterAlreadyFailedForegroundConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="7*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Margin="10,10,10,10"
+                Style="{StaticResource OuterBorderNoShadow}">
+            <Border Style="{StaticResource InnerBorder}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBox Margin="25,20,25,5" Height="30"
+                             materialDesign:HintAssist.Hint="Suche ..."
+                             Text="{Binding CutterSearchText,UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource TextBoxDefault}"/>
+
+                    <StackPanel Grid.Row="1"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding NoCuttersAvailable, Converter={StaticResource BooleanToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}">
+                        <Label Content="Keine Fräse(n) gefunden" 
+                               Style="{StaticResource Label_LiebherrTitle}"/>
+                        <Label Content="Fügen Sie eine neue Fräse hinzu" 
+                               HorizontalAlignment="Center"
+                               Style="{StaticResource Label_LiebherrText}"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" Margin="0,5,0,5"
+                              Background="Transparent"
+                              ItemsSource="{Binding Cutters, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{Binding SelectedCutter, UpdateSourceTrigger=PropertyChanged}"
+                              ColumnHeaderStyle="{StaticResource DataGridColumnHeaderDefault}"
+                              Style="{StaticResource DataGridDefault}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="SN" Binding="{Binding Serialnumber}" Width="85"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Standort" Binding="{Binding Location}" Width="1*"></DataGridTextColumn>
+                            <DataGridTemplateColumn Width="112">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="Wartung"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding MillingStop, StringFormat=dd-MM-yyy}"
+                                                   Foreground="{Binding MillingStop, Converter={StaticResource CutterAlreadyFailedForegroundConverter}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="-10,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="90"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Style="{StaticResource OuterBorderNoShadow}"
+                    Margin="10,10,30,0">
+                <Border Style="{StaticResource InnerBorder}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" Margin="10,0,0,0"
+                               Content="Frässtart"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource Label_LiebherrTitle}"/>
+
+                        <TextBox Grid.Column="1" 
+                                 Text="{Binding SelectedCutter.MillingStart, StringFormat=yyyy-MM-dd}" Style="{StaticResource HeaderTextBox}"/>
+                        
+                        <Label Grid.Column="3"
+                               Content="Fräszeit/Tag"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource Label_LiebherrTitle}"/>
+
+                        <TextBox Grid.Column="4" 
+                                 Text="{Binding SelectedCutter.MillingPerDay_h, StringFormat={}{0} Stunden}" Style="{StaticResource HeaderTextBox}"/>
+
+                        <Label Grid.Column="6"
+                               Content="Fräsdauer"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource Label_LiebherrTitle}"/>
+
+                        <TextBox Grid.Column="7" 
+                                 Text="{Binding SelectedCutter.MillingDuration_y, StringFormat={}{0} Jahre}" Style="{StaticResource HeaderTextBox}"/>
+
+                        <Label Grid.Column="9" 
+                               Content="Lebensspanne:"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource Label_LiebherrTitle}"/>
+
+                        <TextBox Grid.Column="10"
+                                 Text="{Binding SelectedCutter.LifeSpan_h, StringFormat={}{0} Stunden}" Style="{StaticResource HeaderTextBox}"/>
+                    </Grid>
+
+                </Border>
+            </Border>
+
+
+            <Grid Grid.Row="1" Margin="0,-12,20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="8"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="16"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="0"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="0"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="0"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="8"/>
+                </Grid.RowDefinitions>
+
+
+                <Viewbox Grid.Column="1" Grid.Row="1">
+                    <Calendar Name="cal_11" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="2" Grid.Row="1">
+                    <Calendar Name="cal_21" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="3" Grid.Row="1">
+                    <Calendar Name="cal_31" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="4" Grid.Row="1">
+                    <Calendar Name="cal_41" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="5" Grid.Row="1">
+                    <Calendar Name="cal_51" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+
+                <Viewbox Grid.Column="1" Grid.Row="3">
+                    <Calendar Name="cal_13" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="2" Grid.Row="3">
+                    <Calendar Name="cal_23" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="3" Grid.Row="3">
+                    <Calendar Name="cal_33" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="4" Grid.Row="3">
+                    <Calendar Name="cal_43" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="5" Grid.Row="3">
+                    <Calendar Name="cal_53" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+
+                <Viewbox Grid.Column="1" Grid.Row="5">
+                    <Calendar Name="cal_15" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="2" Grid.Row="5">
+                    <Calendar Name="cal_25" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="3" Grid.Row="5">
+                    <Calendar Name="cal_35" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="4" Grid.Row="5">
+                    <Calendar Name="cal_45" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="5" Grid.Row="5">
+                    <Calendar Name="cal_55" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+
+                <Viewbox Grid.Column="1" Grid.Row="7">
+                    <Calendar Name="cal_17" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="2" Grid.Row="7">
+                    <Calendar Name="cal_27" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="3" Grid.Row="7">
+                    <Calendar Name="cal_37" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="4" Grid.Row="7">
+                    <Calendar Name="cal_47" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+                <Viewbox Grid.Column="5" Grid.Row="7">
+                    <Calendar Name="cal_57" Style="{StaticResource CustomCalendarStyle}"/>
+                </Viewbox>
+            </Grid>
+
+        </Grid>
+    </Grid>
+</UserControl>
