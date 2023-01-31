@@ -10,5 +10,5 @@ public interface ICutterAccessLayer
     void Remove(int id);
     void Order(int id);
     void CreateOrUpdate(CutterEditDto cutterDto);
-    List<CutterAnalyseDto> GetAnalyticData(string? search = null);
+    List<CutterAnalyseDto> GetAnalyticData(string? search = null, int? daysLeftFilter = null);
 }

@@ -4,6 +4,7 @@ using SealWatch.Code.ProjectLayer;
 using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Data.Model;
 using SealWatch.Wpf.Custom;
+using SealWatch.Wpf.Enums;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Service.Interfaces;
 using SealWatch.Wpf.ViewModels.Dialogs;
@@ -14,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Visibility = SealWatch.Code.Enums.Visibility;
 
 namespace SealWatch.Wpf.ViewModels;
 
@@ -24,10 +26,9 @@ public class ProjectViewModel : BaseViewModel
     private readonly IHistoryAccessLayer _historyAccessLayer;
     private readonly IUserInputService _userInputService;
 
+    private Visibility _visibility = Visibility.All;
     private List<CutterCard>? _allCutterCards = new();
     private int _lastSelectedProjectId = 0;
-    private bool? _showDone = false;
-    private bool? _showDeleted = false;
 
     public ProjectViewModel(IProjectAccessLayer projectAccessLayer, ICutterAccessLayer cutterAccessLayer, IHistoryAccessLayer historyAccessLayer, IUserInputService userInputService)
     {
@@ -46,8 +47,7 @@ public class ProjectViewModel : BaseViewModel
             if (SelectedProject is not null)
                 _lastSelectedProjectId = SelectedProject.Id;
 
-            var toolName = x.ToString();
-            ShowToolDialog(toolName!);
+            ShowToolDialog(x.ToString()!);
             LoadProjects();
         }
     };
@@ -59,8 +59,7 @@ public class ProjectViewModel : BaseViewModel
         {
             _lastSelectedProjectId = SelectedProject!.Id;
 
-            var toolName = x.ToString();
-            ShowToolDialog(toolName!);
+            ShowToolDialog(x.ToString()!);
             LoadProjects();
         }
     };
@@ -72,8 +71,7 @@ public class ProjectViewModel : BaseViewModel
         {
             _lastSelectedProjectId = SelectedProject!.Id;
 
-            var toolName = x.ToString();
-            ShowToolDialog(toolName!);
+            ShowToolDialog(x.ToString()!);
             LoadProjects();
         }
     };
@@ -82,23 +80,12 @@ public class ProjectViewModel : BaseViewModel
     {
         ObjectCommandAction = (x) =>
         {
-            var visibility = x.ToString();
+            object? visibility = null;  
+            Enum.TryParse(typeof(Visibility), x.ToString(), out visibility);
 
-            if (visibility == "Done")
-            {
-                _showDeleted = null;
-                _showDone = true;
-            }
-            else if (visibility == "Deleted")
-            {
-                _showDone = null;
-                _showDeleted = true;
-            }
-            else
-            {
-                _showDeleted = false;
-                _showDone = false;
-            }
+            if (visibility is not null)
+                _visibility = (Visibility)visibility;
+
             LoadProjects();
         }
     };
@@ -140,12 +127,12 @@ public class ProjectViewModel : BaseViewModel
             _cutterSearchText = value;
             OnPropertyChanged();
 
-            if (CutterCards.Count > 0)
-            {
-                var filteredCutters = _allCutterCards!.Where(x => x.Cutter.SerialNumber.ToLower().Contains(_cutterSearchText.ToLower())).ToList();
-                CutterCards = new(filteredCutters);
-                OnPropertyChanged(nameof(CutterCards));
-            }
+            if (CutterCards.Count <= 0)
+                return;
+
+            var filteredCutters = _allCutterCards!.Where(x => x.Cutter.SerialNumber.ToLower().Contains(_cutterSearchText.ToLower())).ToList();
+            CutterCards = new(filteredCutters);
+            OnPropertyChanged(nameof(CutterCards));
         }
     }
 
@@ -162,7 +149,7 @@ public class ProjectViewModel : BaseViewModel
 
     private void LoadProjects()
     {
-        Projects = new(_projectAccessLayer.GetList(_cutterSearchText, _showDeleted, _showDone));
+        Projects = new(_projectAccessLayer.GetList(_cutterSearchText, _visibility));
         SelectedCutter = null;
         CutterCards.Clear();
 
@@ -186,11 +173,7 @@ public class ProjectViewModel : BaseViewModel
             _allCutterCards = CutterCards.ToList();
         }
 
-        if (CutterCards.Count > 0)
-            NoCuttersAvailable = false;
-        else
-            NoCuttersAvailable = true;
-
+        NoCuttersAvailable = CutterCards.Count > 0 ? false : true;
         OnPropertyChanged(nameof(CutterCards));
     }
 
@@ -251,7 +234,7 @@ public class ProjectViewModel : BaseViewModel
 
         bool UserConfirmed(string message)
         {
-            return _userInputService.UserPopupConfirmed(message);
+            return _userInputService.UserConfirmPopUp(message);
         }
     }
 

@@ -19,7 +19,7 @@ public class AnalyticViewModel : BaseViewModel
     private readonly IGraphsService _graphsService;
 
     private List<CutterAnalyseDto> _cutters = new();
-    private int _dayFilter = 360;
+    private int _daysLeftFilter = 360;
 
     public AnalyticViewModel(
         ICutterAccessLayer cutterAccessLayer, 
@@ -43,11 +43,11 @@ public class AnalyticViewModel : BaseViewModel
         CanExecuteFunc = () => SelectedCutter is not null,
         CommandAction = () =>
         {
-            if (_userInputService.UserPopupConfirmed("Bestellen"))
-            {
-                _cutterAccessLayer.Order(SelectedCutter!.Id);
-                RefreshCutters();
-            }
+            if (!_userInputService.UserConfirmPopUp("Bestellen"))
+                return;
+
+            _cutterAccessLayer.Order(SelectedCutter!.Id);
+            RefreshCutters();
         }
     };
 
@@ -55,7 +55,7 @@ public class AnalyticViewModel : BaseViewModel
     {
         ObjectCommandAction = (x) =>
         {
-            _dayFilter = Convert.ToInt32(x);
+            _daysLeftFilter = Convert.ToInt32(x);
             RefreshCutters();
             RefreshGraphs();
         }
@@ -113,7 +113,6 @@ public class AnalyticViewModel : BaseViewModel
         {
             _cutterSearchText = value;
             OnPropertyChanged();
-
             RefreshCutters();
         }
     }
@@ -131,16 +130,10 @@ public class AnalyticViewModel : BaseViewModel
 
     private void RefreshCutters()
     {
-        _cutters = _cutterAccessLayer.GetAnalyticData(_cutterSearchText);
-        _cutters = _cutters.Where(x => x.DaysLeft <= _dayFilter).ToList();
-        Cutters = new(_cutters);
+        Cutters = new(_cutterAccessLayer.GetAnalyticData(_cutterSearchText, _daysLeftFilter));
         OnPropertyChanged(nameof(Cutters));
 
-        if (Cutters.Count <= 0)
-            NoCuttersAvailable = true;
-        else
-            NoCuttersAvailable = false;
-
+        NoCuttersAvailable = Cutters.Count <= 0 ? true : false;
         RefreshGraphs();
     }
 
@@ -151,9 +144,10 @@ public class AnalyticViewModel : BaseViewModel
 
         var cutters = Cutters.ToList();
 
-        OrderedChart = _graphsService.GetOrderedChart(cutters, _dayFilter);
+        OrderedChart = _graphsService.GetOrderedChart(cutters, _daysLeftFilter);
         OnPropertyChanged(nameof(OrderedChart));
-        LocationChart = _graphsService.GetLocationChart(cutters, _dayFilter);
+
+        LocationChart = _graphsService.GetLocationChart(cutters, _daysLeftFilter);
         OnPropertyChanged(nameof(LocationChart));
     }
 

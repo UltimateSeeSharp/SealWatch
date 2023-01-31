@@ -49,10 +49,10 @@ public class CalendarPlanerViewModel : BaseViewModel
             _selectedCutter = value;
             OnPropertyChanged();
 
-            if (SelectedCutter is not null)
-            {
-                _sealMonitorService.DrawSelected(_calendars!, SelectedCutter.WorkDays, SelectedCutter.MillingPerDay_h, SelectedCutter.MillingDuration_y, SelectedCutter.LifeSpan_h, SelectedCutter.MillingStart);
-            }
+            if (SelectedCutter is null)
+                return;
+
+            _sealMonitorService.DrawSelected(_calendars!, SelectedCutter.WorkDays, SelectedCutter.MillingPerDay_h, SelectedCutter.MillingDuration_y, SelectedCutter.LifeSpan_h, SelectedCutter.MillingStart);
         }
     }
 
@@ -83,12 +83,7 @@ public class CalendarPlanerViewModel : BaseViewModel
     private void RefreshProjects()
     {
         Cutters = new(_cutterAccessLayer.GetAnalyticData(_cutterSearchText));
-
-        if (Cutters.Count <= 0)
-            NoCuttersAvailable = true;
-        else
-            NoCuttersAvailable = false;
-
+        NoCuttersAvailable = Cutters.Count > 0 ? false : true;
         OnPropertyChanged(nameof(Cutters));
     }
 }

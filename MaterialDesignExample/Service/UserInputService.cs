@@ -11,7 +11,7 @@ namespace SealWatch.Wpf.Service;
 
 public class UserInputService : IUserInputService
 {
-    public bool UserPopupConfirmed(string tool)
+    public bool UserConfirmPopUp(string tool)
     {
         return MessageBox.Show("Sind Sie sicher?", tool, MessageBoxButton.YesNoCancel) is MessageBoxResult.Yes;
     }

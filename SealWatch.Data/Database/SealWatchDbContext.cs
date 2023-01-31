@@ -137,9 +137,10 @@ public class SealWatchDbContext : DbContext
     public static SealWatchDbContext NewContext(bool useInMemory = false)
     {
         var dbOptions = new DbContextOptionsBuilder();
-        //  useInMemory
         var connectionString = @"Data Source=lwnsvsql02;Initial Catalog=FraesenMgmt;trusted_connection=true;";
-        dbOptions.UseSqlServer(connectionString);
+        
+        //  dbOptions.UseSqlServer(connectionString);
+        dbOptions.UseInMemoryDatabase("SealWatch");
 
         var context = new SealWatchDbContext(dbOptions.Options);
 
@@ -153,8 +154,8 @@ public class SealWatchDbContext : DbContext
         //    Environment.Exit(0);
         //}
 
-        //  useInMemory
-        if (true)
+        bool shouldSeed = true;
+        if (shouldSeed)
         {
             context.Seed();
         }
@@ -162,22 +163,14 @@ public class SealWatchDbContext : DbContext
         return context;
     }
 
-    private static bool seeded;
 
+    private static bool isSeeded = false;
     public void Seed()
     {
-        //if (!Database.IsInMemory())
-        //{
-        //    throw new NotSupportedException($"Method {System.Reflection.MethodBase.GetCurrentMethod().Name} is only allowed with InMemory Database!");
-        //}
-
-        return;
-
-        if (seeded)
-        {
+        if (isSeeded)
             return;
-        }
-        seeded = true;
+
+        isSeeded = true;
 
         var project1 = new Project()
         {

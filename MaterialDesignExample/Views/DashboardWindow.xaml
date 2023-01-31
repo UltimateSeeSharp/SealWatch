@@ -9,7 +9,7 @@
         Title="LWN SealWatch"
         WindowStartupLocation="CenterScreen"
         Height="1010" Width="1575"
-        MinHeight="910" MinWidth="1345">
+        MinHeight="810" MinWidth="1345">
     <Grid>
 
         <Grid.RowDefinitions>

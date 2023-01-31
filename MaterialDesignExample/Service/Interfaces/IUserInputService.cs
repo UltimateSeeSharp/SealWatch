@@ -8,5 +8,5 @@ public interface IUserInputService
 {
     List<ValidationError> GetInvalidCutterInputs(CutterEditDto cutter);
     List<ValidationError> GetInvalidProjectInputs(ProjectEditDto project);
-    bool UserPopupConfirmed(string tool);
+    bool UserConfirmPopUp(string tool);
 }

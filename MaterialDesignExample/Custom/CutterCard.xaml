@@ -8,7 +8,7 @@
              xmlns:local="clr-namespace:SealWatch.Wpf.Custom"
              mc:Ignorable="d" 
              Margin="5"
-             Height="365" 
+             Height="365"
              Width="230">
 
     <UserControl.Resources>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SealWatch.Code.CutterLayer;
+using SealWatch.Code.Enums;
 using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Data.Database;
 using SealWatch.Data.Model;
@@ -8,18 +9,21 @@ namespace SealWatch.Code.ProjectLayer;
 
 public class ProjectAccessLayer : IProjectAccessLayer
 {
-    public List<ProjectListDto> GetList(string? search = null, bool? showDeleted = null, bool? showDone = null)
+    public List<ProjectListDto> GetList(string? search = null, Visibility visibility = Visibility.All)
     {
         using (var context = SealWatchDbContext.NewContext())
         {
             var data = context.Set<Project>().Include(item => item.Cutters);
             var query = data.Select(x => x);
 
-            if (showDeleted.HasValue)
-                query = data.Where(item => item.IsDeleted == showDeleted);
+            if (visibility is Visibility.Deleted)
+                query = data.Where(item => item.IsDeleted);
 
-            if (showDone.HasValue)
-                query = query.Where(item => item.IsDone == showDone);
+            else if (visibility is Visibility.Done)
+                query = query.Where(item => item.IsDone);
+
+            else
+                query = query.Where(item => !item.IsDone && !item.IsDeleted);
 
             if (search is not null)
                 query = query.Where(item => item.Location.ToLower().Contains(search.ToLower()));

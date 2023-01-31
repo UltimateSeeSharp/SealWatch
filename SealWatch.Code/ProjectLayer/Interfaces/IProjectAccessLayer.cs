@@ -1,4 +1,5 @@
 ﻿using SealWatch.Code.CutterLayer;
+using SealWatch.Code.Enums;
 using SealWatch.Data.Model;
 
 namespace SealWatch.Code.ProjectLayer.Intefaces;
@@ -13,7 +14,7 @@ public interface IProjectAccessLayer
     ProjectEditDto GetEditData(int id);
     List<CutterAnalyseDto> GetAnalyticData();
     Guid GetGuid();
-    List<ProjectListDto> GetList(string? search = null, bool? showDeleted = null, bool? showDone = null);
+    List<ProjectListDto> GetList(string? search = null, Visibility visibility = Visibility.All);
     bool ProjectExists(int id);
     void Remove(int id);
 }

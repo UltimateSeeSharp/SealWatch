@@ -3,6 +3,7 @@ using SealWatch.Code.CutterLayer.Interfaces;
 using SealWatch.Code.Extensions;
 using SealWatch.Data.Database;
 using SealWatch.Data.Model;
+using System.Net.Http.Headers;
 
 namespace SealWatch.Code.CutterLayer;
 
@@ -16,12 +17,13 @@ public class CutterAccessLayer : ICutterAccessLayer
         }
     }
 
-    public List<CutterAnalyseDto> GetAnalyticData(string? search = null)
+    public List<CutterAnalyseDto> GetAnalyticData(string? search = null, int? daysLeftFilter = null)
     {
         using (var context = SealWatchDbContext.NewContext())
         {
             var list = new List<CutterAnalyseDto>();
             var projects = context.Set<Project>().Include(item => item.Cutters);
+
 
             foreach (var project in projects)
             {
@@ -62,6 +64,10 @@ public class CutterAccessLayer : ICutterAccessLayer
                 }
                 cutter.DaysLeft = (int)((totalDays1Percent * 100) - daysPassed);
             }
+
+            if (daysLeftFilter.HasValue)
+                return list.Where(x => x.DaysLeft <= daysLeftFilter).ToList();
+
             return list;
         }
     }
