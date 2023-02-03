@@ -10,6 +10,12 @@ namespace SealWatch.Code.CutterLayer;
 public class CutterAccessLayer : ICutterAccessLayer
 {
     private AnalyseService _analyseService = new();
+    private int _accuracy;
+
+    public CutterAccessLayer(int accuracy)
+    {
+        _accuracy = accuracy;
+    }
 
     public List<Cutter> GetList()
     {
@@ -39,7 +45,7 @@ public class CutterAccessLayer : ICutterAccessLayer
         };
     }
 
-    public List<AnalysedCutterDto> GetAnalysedCutters(string? search = null, int? daysLeftFilter = null, int? fromProjectId = null)
+    public List<AnalysedCutterDto> GetAnalysedCutters(string? search = null, int? daysLeftFilter = null, int? fromProjectId = null, int accuracy = 0)
     {
         using var context = SealWatchDbContext.NewContext();
 
@@ -72,8 +78,8 @@ public class CutterAccessLayer : ICutterAccessLayer
 
         foreach (AnalysedCutterDto cutter in cutters)
         {
-            cutter.DaysLeft = _analyseService.CalcDaysLeft(cutter.MillingStop);
-            cutter.Durability = _analyseService.CalcDurability(cutter.MillingStart, cutter.MillingStop);
+            cutter.DaysLeft = _analyseService.CalcRelativeTimeInDays(cutter.MillingStop, accuracy: _accuracy);
+            cutter.Durability = _analyseService.CalcDurability(cutter.MillingStart, cutter.MillingStop, accuracy: _accuracy);
         }
 
         if (search is not null)

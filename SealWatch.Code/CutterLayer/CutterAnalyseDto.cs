@@ -12,7 +12,7 @@ public class AnalysedCutterDto : BaseListDto
 
     public DateTime MillingStop { get; set; }
 
-    public int DaysLeft { get; set; }
+    public double DaysLeft { get; set; }
 
     public double Durability { get; set; }
 

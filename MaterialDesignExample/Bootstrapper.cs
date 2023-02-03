@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SealWatch.Code;
 using SealWatch.Code.CutterLayer;
+using SealWatch.Code.CutterLayer.Interfaces;
 using SealWatch.Code.HistoryLayer;
 using SealWatch.Code.ProjectLayer;
 using SealWatch.Code.Services;
@@ -17,6 +18,7 @@ using SealWatch.Wpf.Views.Dialogs;
 using Serilog;
 using Serilog.Extensions.Logging;
 using System;
+using System.Configuration;
 
 namespace SealWatch.Wpf;
 
@@ -47,17 +49,7 @@ public static class Bootstrapper
 
     private static ContainerBuilder ConfigContainer(this ContainerBuilder builder)
     {
-        var configBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false);
 
-        var config = configBuilder.Build();
-
-        builder.Register(x =>
-        {
-            var c = new AppSettings();
-            config.GetSection(nameof(AppSettings)).Bind(c);
-            return c;
-        });
-        builder.RegisterInstance(config).AsImplementedInterfaces();
 
         return builder;
     }
@@ -79,7 +71,22 @@ public static class Bootstrapper
     }
 
     private static ContainerBuilder Setup(this ContainerBuilder builder)
-    {
+    { 
+        //  AppSettings
+
+        var configBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false);
+        var config = configBuilder.Build();
+
+        var appSettingsSetup = () =>
+        {
+            var c = new AppSettings();
+            config.GetSection(nameof(AppSettings)).Bind(c);
+            return c;
+        };
+        AppSettings appSettings = appSettingsSetup.Invoke();
+        builder.RegisterInstance(appSettings).As<AppSettings>();
+        builder.RegisterInstance(config).AsImplementedInterfaces();
+
         //  Services
 
         builder.RegisterType<AnalyseService>().SingleInstance();
@@ -91,7 +98,7 @@ public static class Bootstrapper
 
         builder.RegisterType<ProjectAccessLayer>().AsImplementedInterfaces();
         builder.RegisterType<HistoryAccessLayer>().AsImplementedInterfaces();
-        builder.RegisterType<CutterAccessLayer>().AsImplementedInterfaces();
+        builder.Register<ICutterAccessLayer>(x => new CutterAccessLayer(appSettings.Accuracy));
 
         builder.RegisterType<Random>().SingleInstance();
 

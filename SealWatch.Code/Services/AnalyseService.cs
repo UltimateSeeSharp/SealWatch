@@ -5,30 +5,47 @@ namespace SealWatch.Code.Services;
 
 public class AnalyseService
 {
-    public double CalcDurability(DateTime start, DateTime stop)
+    /// <summary>
+    /// Calculates durability of a cutter on a basis of 0-100
+    /// 0 if unused / 100+ if used over maintenance date
+    /// </summary>
+    /// <param name="start">Day at which the cutter starts milling</param>
+    /// <param name="stop">Day at which the cutter stops milling - new seal is needed</param>
+    /// <param name="accuracy">Accuracy of decimal places</param>
+    /// <returns></returns>
+    public double CalcDurability(DateTime start, DateTime stop, int accuracy = 0)
     {
         var totalDays1Perc = (stop - start).TotalDays / 100;
         var passedDays = (DateTime.Now - start).TotalDays;
 
         var pace = passedDays / totalDays1Perc;
-        var result = Math.Round(pace);
-
-        if (result < 0 || result > 101)
-            Log.Error($"Calculation durability failed | Smaller 0 or Bigger 101");
+        var result = Math.Round(pace, accuracy);
 
         return result;
     }
 
-    public int CalcDaysLeft(DateTime millingStop)
+    /// <summary>
+    /// Calculates days to next maintenance.
+    /// Can be negative if maintenance day is in the past.
+    /// </summary>
+    /// <param name="millingStop">Day at which the cutter stops milling - new seal is needed</param>
+    /// <param name="accuracy">Accuracy of decimal places</param>
+    /// <returns></returns>
+    public double CalcRelativeTimeInDays(DateTime millingStop, int accuracy = 0)
     {
         var daysToStop = (millingStop - DateTime.Now).TotalDays;
-
-        if (daysToStop < 0)
-            Log.Error($"Calculation days left failed | Smaller 0");
-
-        return (int)Math.Ceiling(daysToStop);
+        return Math.Round(daysToStop, accuracy);
     }
 
+    /// <summary>
+    /// Calculates next maintenance date for specific cutter values.
+    /// Can generate valid dates in the past.
+    /// </summary>
+    /// <param name="millingStart">Day at which the cutter starts milling</param>
+    /// <param name="workDays">Days per week of which are workdays</param>
+    /// <param name="millingPerDay">Hours per day of which are work hours</param>
+    /// <param name="lifespan">Lifespan of the cutter seals in hours</param>
+    /// <returns></returns>
     public DateTime CalcFailureDate(DateTime millingStart, int workDays, double millingPerDay, double lifespan)
     {
         var hoursPerWeek = workDays * millingPerDay;
@@ -41,6 +58,11 @@ public class AnalyseService
         return millingStop;
     }
 
+    /// <summary>
+    /// Calculates next maintenance dates for specific cutter values.
+    /// </summary>
+    /// <param name="cutter">Cutter of which the all maintenance dates for its whole life are calculated</param>
+    /// <returns></returns>
     public List<DateTime> GetFailureDates(AnalysedCutterDto cutter)
     {
         List<DateTime> failureDates = new();
