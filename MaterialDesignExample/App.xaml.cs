@@ -1,8 +1,6 @@
-﻿using SealWatch.Code.ProjectLayer;
-using SealWatch.Wpf;
-using SealWatch.Wpf.ViewModels.Dialogs;
-using SealWatch.Wpf.Views;
+﻿using SealWatch.Wpf;
 using System.Windows;
+using SplashScreen = SealWatch.Wpf.Views.SplashScreen;
 
 namespace MaterialDesignExample;
 
@@ -10,8 +8,7 @@ public partial class App : Application
 {
     public App()
     {
-        var dvm = new DetailsViewModel(new ProjectAccessLayer());
-        dvm.Project = new ProjectDetailDto();
+
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -20,7 +17,7 @@ public partial class App : Application
 
         Bootstrapper.Start();
 
-        MainWindow = Bootstrapper.Resolve<SealWatch.Wpf.Views.SplashScreen>();
+        MainWindow = Bootstrapper.Resolve<SplashScreen>();
         MainWindow.Show();
     }
 

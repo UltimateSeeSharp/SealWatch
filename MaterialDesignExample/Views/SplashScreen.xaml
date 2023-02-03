@@ -23,7 +23,7 @@
             </Border>
 
             <Grid>
-                <Image Name="Receiver" Source="pack://application:,,,/Images/splashScreen.jpg">
+                <Image Name="Receiver" Source="pack://application:,,,/Assets/Images/splashScreen.jpg">
                     <Image.Effect>
                         <BlurEffect Radius="0"/>
                     </Image.Effect>
@@ -52,7 +52,7 @@
                        Style="{StaticResource Label_LiebherrText}"/>
 
 
-                <Label Content="v1.0"
+                <Label Content="{Binding AppVersion, Mode=OneTime}"
                        Margin="620,410,0,0"
                        FontSize="12"
                        Foreground="GhostWhite"/>

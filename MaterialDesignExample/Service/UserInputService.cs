@@ -9,6 +9,9 @@ using System.Windows;
 
 namespace SealWatch.Wpf.Service;
 
+/// <summary>
+/// Validates user inputs
+/// </summary>
 public class UserInputService : IUserInputService
 {
     public bool UserConfirmPopUp(string tool)

@@ -4,11 +4,10 @@ namespace SealWatch.Code.CutterLayer.Interfaces;
 
 public interface ICutterAccessLayer
 {
-    Cutter GetCutterById(int id);
-    CutterEditDto? GetEditData(int id);
     List<Cutter> GetList();
+    CutterEditDto GetEditData(int id);
+    List<AnalysedCutterDto> GetAnalysedCutters(string? search = null, int? daysLeftFilter = null, int? projectId = null);
+    void CreateOrUpdate(CutterEditDto cutterDto);
     void Remove(int id);
     void Order(int id);
-    void CreateOrUpdate(CutterEditDto cutterDto);
-    List<CutterAnalyseDto> GetAnalyticData(string? search = null, int? daysLeftFilter = null);
 }

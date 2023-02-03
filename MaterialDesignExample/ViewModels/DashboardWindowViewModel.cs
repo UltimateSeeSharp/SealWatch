@@ -1,4 +1,5 @@
-﻿using SealWatch.Wpf.Config;
+﻿using SealWatch.Code.CutterLayer;
+using SealWatch.Wpf.Config;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Views;
 using System;
@@ -35,7 +36,7 @@ public class DashboardWindowViewModel : BaseViewModel
     
     public UserControl AnalyseOld { get; set; }
 
-    public string AppNameAndVersion => "Seal Watch" + " " + _appSettings.Version;
+    public string AppNameAndVersion => "Seal Watch" + " " + _appSettings.AppVersion;
 
     public string CurrentUser => Environment.UserName;
 }

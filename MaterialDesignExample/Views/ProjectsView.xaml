@@ -7,6 +7,7 @@
              xmlns:converter="clr-namespace:SealWatch.Wpf.Converter"
              xmlns:local="clr-namespace:SealWatch.Wpf.Views"
              mc:Ignorable="d" 
+             Loaded="UserControl_Loaded"
              d:DesignHeight="980" 
              d:DesignWidth="1600"
              Background="White">

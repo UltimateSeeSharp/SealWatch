@@ -1,13 +1,9 @@
-﻿using SealWatch.Code.HistoryLayer;
+﻿using SealWatch.Code.HistoryLayer.Interfaces;
 using SealWatch.Code.HistotyLayer;
 using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Wpf.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SealWatch.Wpf.ViewModels.Dialogs;
@@ -16,10 +12,10 @@ public class HistoryViewModel : BaseViewModel
 {
     private readonly IHistoryAccessLayer _historyAccessLayer;
     private readonly IProjectAccessLayer _projectAccessLayer;
+    private string? _refId;
+    private Guid? _guid;
 
     public event EventHandler? CloseWindow;
-    private Guid? _guid;
-    private string? _refId;
 
     public HistoryViewModel(IProjectAccessLayer projectAccessLayer, IHistoryAccessLayer historyAccessLayer)
     {
@@ -27,23 +23,15 @@ public class HistoryViewModel : BaseViewModel
         _projectAccessLayer = projectAccessLayer;
     }
 
-    public void Loaded()
+    private ObservableCollection<HistoryListDto> _history = new();
+    public ObservableCollection<HistoryListDto> History
     {
-
-        History = new(_historyAccessLayer.GetList(Guid!.Value, RefId!));
-    }
-
-    public ICommand CloseCommand => new DelegateCommand()
-    {
-        CommandAction = () => CloseWindow!.Invoke(this, EventArgs.Empty)
-    };
-
-
-    private void Load()
-    {
-        if (_refId is not null && _guid is not null)
+        get => _history;
+        set
         {
-            History = new ObservableCollection<HistoryListDto>(_historyAccessLayer.GetList(_guid.Value, _refId));
+            if (_history == value) return;
+            _history = value;
+            OnPropertyChanged();
         }
     }
 
@@ -67,15 +55,18 @@ public class HistoryViewModel : BaseViewModel
         }
     }
 
-    private ObservableCollection<HistoryListDto> _history;
-    public ObservableCollection<HistoryListDto> History
+    public void Loaded() => History = new(_historyAccessLayer.GetList(Guid!.Value, RefId!));
+
+    private void Load()
     {
-        get => _history;
-        set
-        {
-            if (_history == value) return;
-            _history = value;
-            OnPropertyChanged();
-        }
+        if (_refId is null && _guid is null)
+            return;
+
+        History = new ObservableCollection<HistoryListDto>(_historyAccessLayer.GetList(_guid.Value, _refId));
     }
+
+    public ICommand CloseCommand => new DelegateCommand()
+    {
+        CommandAction = () => CloseWindow!.Invoke(this, EventArgs.Empty)
+    };
 }

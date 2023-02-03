@@ -1,5 +1,4 @@
-﻿using SealWatch.Code.CutterLayer;
-using SealWatch.Code.CutterLayer.Interfaces;
+﻿using SealWatch.Code.ProjectLayer;
 using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Service.Interfaces;
@@ -10,53 +9,47 @@ using System.Windows.Input;
 
 namespace SealWatch.Wpf.ViewModels.Dialogs;
 
-public class CreateOrUpdateCutterViewModel : BaseViewModel
+public class CreateOrUpdateProjectViewModel : BaseViewModel
 {
     private readonly IProjectAccessLayer _projectAccessLayer;
-    private readonly ICutterAccessLayer _cutterAccessLayer;
     private readonly IUserInputService _userInputService;
 
     public event EventHandler? CloseWindow;
 
-    public CreateOrUpdateCutterViewModel(IProjectAccessLayer projectAccessLayer, ICutterAccessLayer cutterAccessLayer, IUserInputService userInputService)
+    public CreateOrUpdateProjectViewModel(IProjectAccessLayer projectAccessLayer, IUserInputService userInputService)
     {
         _projectAccessLayer = projectAccessLayer;
-        _cutterAccessLayer = cutterAccessLayer;
         _userInputService = userInputService;
+        _project = new();
     }
 
     public int Id { get; set; }
-    public int ProjectId { get; set; }
-    public string WindowTitle => Id is 0 ? "Fräse hinzufügen" : "Fräse editieren";
+    public string WindowTitle => Id is 0 ? "Projekt hinzufügen" : "Projekt editieren";
 
-    private CutterEditDto _cutter = new();
-    public CutterEditDto Cutter
+    private ProjectEditDto _project = new();
+    public ProjectEditDto Project
     {
-        get => _cutter;
+        get => _project;
         set
         {
-            if (_cutter == value)
-                return;
-
-            _cutter = value;
+            if (_project == value) return;
+            _project = value;
             OnPropertyChanged();
         }
     }
 
     public void Loaded()
     {
-        Cutter.ProjectId = ProjectId;
-
         if (Id is not 0)
-            Cutter = _cutterAccessLayer.GetEditData(Id);
+            Project = _projectAccessLayer.GetEditData(Id);
     }
 
     public ICommand SubmitCommand => new DelegateCommand()
     {
-        CanExecuteFunc = () => Cutter is not null,
+        CanExecuteFunc = () => Project is not null,
         CommandAction = () =>
         {
-            var validationErrors = _userInputService.GetInvalidCutterInputs(Cutter);
+            var validationErrors = _userInputService.GetInvalidProjectInputs(Project);
             if (validationErrors.Count > 0)
             {
                 var error = validationErrors.First();
@@ -64,8 +57,8 @@ public class CreateOrUpdateCutterViewModel : BaseViewModel
                 return;
             }
 
-            _cutterAccessLayer.CreateOrUpdate(Cutter);
-            CloseWindow!.Invoke(Cutter.ProjectId, EventArgs.Empty);
+            _projectAccessLayer.CreateOrUpdate(Project);
+            CloseWindow!.Invoke(this, EventArgs.Empty);
         }
     };
 

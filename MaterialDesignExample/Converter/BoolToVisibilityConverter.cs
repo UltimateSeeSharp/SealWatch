@@ -5,24 +5,22 @@ using System.Windows.Data;
 
 namespace SealWatch.Wpf.Converter;
 
+/// <summary>
+/// Converts boolean to type visibility
+/// </summary>
 [ValueConversion(typeof(bool), typeof(Visibility))]
 public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if ((bool)value)
+        if (value is not null && (bool)value)
             return Visibility.Visible;
-        else
-            return Visibility.Collapsed;
+
+        return Visibility.Hidden;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        string strValue = value as string;
-        if (Enum.TryParse<Visibility>(strValue, out Visibility result))
-        {
-            return result;
-        }
         return DependencyProperty.UnsetValue;
     }
 }

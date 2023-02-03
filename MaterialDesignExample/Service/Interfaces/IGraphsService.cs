@@ -8,6 +8,6 @@ namespace SealWatch.Wpf.Service.Interfaces;
 
 public interface IGraphsService
 {
-    CartesianChart GetOrderedChart(List<CutterAnalyseDto> cutters, int dayFilter = 7);
-    CartesianChart GetLocationChart(List<CutterAnalyseDto> cutters, int dayFilter = 7);
+    CartesianChart GetOrderedChart(List<AnalysedCutterDto> cutters, int dayFilter = 7);
+    CartesianChart GetLocationChart(List<AnalysedCutterDto> cutters, int dayFilter = 7);
 }

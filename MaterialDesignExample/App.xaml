@@ -25,7 +25,7 @@
                 <Setter Property="BorderBrush" Value="{StaticResource LwnYellow}"/>
                 <Setter Property="BorderThickness" Value="2"/>
                 <Setter Property="materialDesign:ShadowAssist.ShadowDepth" Value="Depth0"/>
-                <Setter Property="FontFamily" Value="/Fonts/#Liebherr Title Light"/>
+                <Setter Property="FontFamily" Value="/Assets/Fonts/#Liebherr Title Light"/>
             </Style>
             <Style x:Key="NavigationButtons"
                    BasedOn="{StaticResource MaterialDesignFloatingActionSecondaryDarkButton}" 
@@ -50,7 +50,7 @@
 
             <Style x:Key="TextBoxDefault" BasedOn="{StaticResource MaterialDesignTextBox}" TargetType="TextBox">
                 <Setter Property="BorderBrush" Value="{StaticResource LwnYellow}" />
-                <Setter Property="FontFamily" Value="/Fonts/#Liebherr Text Light" />
+                <Setter Property="FontFamily" Value="/Assets/Fonts/#Liebherr Text Light" />
                 <Setter Property="FontSize" Value="17" />
                 <Setter Property="materialDesign:HintAssist.Hint" Value="..." />
                 <Style.Triggers>
@@ -61,26 +61,26 @@
             </Style>
             
             <Style x:Key="TextBlock_LiebherrText" TargetType="TextBlock">
-                <Setter Property="TextElement.FontFamily" Value="/Fonts/#Liebherr Text Light"/>
+                <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Light"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
             </Style>
             
             <Style x:Key="Label_LiebherrText" TargetType="Label">
-                <Setter Property="TextElement.FontFamily" Value="/Fonts/#Liebherr Text Light"/>
+                <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Light"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
             </Style>
             <Style x:Key="Label_LiebherrMedium" TargetType="Label">
-                <Setter Property="TextElement.FontFamily" Value="/Fonts/#Liebherr Text Medium"/>
+                <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Medium"/>
                 <Setter Property="TextElement.FontSize" Value="19"/>
                 <Setter Property="Margin" Value="30,15,0,0" />
             </Style>
             <Style x:Key="Label_LiebherrTitle" TargetType="Label">
-                <Setter Property="TextElement.FontFamily" Value="/Fonts/#Liebherr Text Bold"/>
+                <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Bold"/>
                 <Setter Property="TextElement.FontSize" Value="20"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
             </Style>
             <Style x:Key="Label_LiebherrBigTitle" TargetType="Label">
-                <Setter Property="TextElement.FontFamily" Value="/Fonts/#Liebherr Text Bold"/>
+                <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Bold"/>
                 <Setter Property="TextElement.FontSize" Value="30"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
             </Style>
@@ -100,7 +100,7 @@
                 <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="GridLinesVisibility" Value="Horizontal"/>
                 <Setter Property="HorizontalGridLinesBrush" Value="LightGray"/>
-                <Setter Property="FontFamily" Value="/Fonts/#Liebherr Text Light"/>
+                <Setter Property="FontFamily" Value="/Assets/Fonts/#Liebherr Text Light"/>
                 <Setter Property="ItemContainerStyle">
                     <Setter.Value>
                         <Style TargetType="DataGridRow">
@@ -188,7 +188,7 @@
             </Style>
 
             <Style x:Key="RadioButtonDefault" BasedOn="{StaticResource MaterialDesignTabRadioButtonTop}" TargetType="RadioButton">
-                <Setter Property="FontFamily" Value="/Fonts/#Liebherr Text Light"/>
+                <Setter Property="FontFamily" Value="/Assets/Fonts/#Liebherr Text Light"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}"/>
             </Style>
 

@@ -72,14 +72,14 @@
                                    Style="{StaticResource Label_LiebherrText}"/>
                         </StackPanel>
 
-                        <DataGrid Background="Transparent" Grid.Row="1" Margin="5"
+                        <DataGrid Grid.Row="1" Margin="5 5 5 0"
                                   ItemsSource="{Binding Cutters, UpdateSourceTrigger=PropertyChanged}"
                                   SelectedItem="{Binding SelectedCutter, UpdateSourceTrigger=PropertyChanged}"
                                   MouseDoubleClick="DataGrid_MouseDoubleClick"
                                   ColumnHeaderStyle="{StaticResource DataGridColumnHeaderDefault}"
                                   Style="{StaticResource DataGridDefault}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="SN" Binding="{Binding Serialnumber}" Width="100"/>
+                                <DataGridTextColumn Header="SN" Binding="{Binding SerialNumber}" Width="100"/>
                                 <DataGridTextColumn Header="Standort" Binding="{Binding Location}" Width="1*"/>
                                 <DataGridTextColumn Header="Frässtart" Binding="{Binding MillingStart, StringFormat=dd-MM-yyy}" Width="1*"/>
                                 <DataGridTemplateColumn Width="112">
@@ -113,18 +113,9 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <Grid Grid.Row="2" Margin="30,20,20,20">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Button Grid.Column="2"
+                        <Button Grid.Row="2" Margin="0 0 20 20" HorizontalAlignment="Right"
                                 Command="{Binding OrderCommand}" CommandParameter="Delete" ToolTip="Löschen"
                                 Content="{materialDesign:PackIcon Kind=PackageVariantClosed, Size=30}" Style="{StaticResource ToolBarButtonDefault}"/>
-
-                        </Grid>
                     </Grid>
 
                 </Grid>

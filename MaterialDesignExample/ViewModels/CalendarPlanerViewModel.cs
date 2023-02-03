@@ -1,32 +1,27 @@
 ﻿using SealWatch.Code.CutterLayer;
 using SealWatch.Code.CutterLayer.Interfaces;
-using SealWatch.Code.ProjectLayer;
-using SealWatch.Code.ProjectLayer.Intefaces;
+using SealWatch.Code.Services;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Service.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Controls;
-using System.Windows.Markup;
 
 namespace SealWatch.Wpf.ViewModels;
 
 public class CalendarPlanerViewModel : BaseViewModel
 {
     private readonly ICutterAccessLayer _cutterAccessLayer;
-    private readonly ISealMonitorService _sealMonitorService;
-
+    private readonly ICalendarService _sealMonitorService;
+    private readonly AnalyseService _analyseService;
     private List<Calendar>? _calendars;
 
-    public CalendarPlanerViewModel(ICutterAccessLayer cutterAccessLayer, ISealMonitorService sealMonitorService)
+    public CalendarPlanerViewModel(ICutterAccessLayer cutterAccessLayer, ICalendarService sealMonitorService, AnalyseService analyseService)
     {
         _cutterAccessLayer = cutterAccessLayer;
         _sealMonitorService = sealMonitorService;
+        _analyseService = analyseService;
     }
 
     public void Loaded(List<Calendar> calendars)
@@ -37,10 +32,10 @@ public class CalendarPlanerViewModel : BaseViewModel
         _sealMonitorService.InitializeCalendars(DateTime.Now, _calendars);
     }
 
-    public ObservableCollection<CutterAnalyseDto>? Cutters { get; set; }
+    public ObservableCollection<AnalysedCutterDto>? Cutters { get; set; }
 
-    private CutterAnalyseDto? _selectedCutter;
-    public CutterAnalyseDto? SelectedCutter
+    private AnalysedCutterDto? _selectedCutter;
+    public AnalysedCutterDto? SelectedCutter
     {
         get => _selectedCutter;
         set
@@ -52,11 +47,12 @@ public class CalendarPlanerViewModel : BaseViewModel
             if (SelectedCutter is null)
                 return;
 
-            _sealMonitorService.DrawSelected(_calendars!, SelectedCutter.WorkDays, SelectedCutter.MillingPerDay_h, SelectedCutter.MillingDuration_y, SelectedCutter.LifeSpan_h, SelectedCutter.MillingStart);
+            var failureDates = _analyseService.GetFailureDates(SelectedCutter);
+            _sealMonitorService.DrawSelected(_calendars!, failureDates);
         }
     }
 
-    private string _cutterSearchText;
+    private string _cutterSearchText = String.Empty;
     public string CutterSearchText
     {
         get => _cutterSearchText;
@@ -82,7 +78,7 @@ public class CalendarPlanerViewModel : BaseViewModel
 
     private void RefreshProjects()
     {
-        Cutters = new(_cutterAccessLayer.GetAnalyticData(_cutterSearchText));
+        Cutters = new(_cutterAccessLayer.GetAnalysedCutters(search: _cutterSearchText));
         NoCuttersAvailable = Cutters.Count > 0 ? false : true;
         OnPropertyChanged(nameof(Cutters));
     }

@@ -3,6 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace SealWatch.Wpf.Extensions;
 
+/// <summary>
+/// Provides functionality for every ViewModel 
+/// to implement OnPropertyChanged
+/// </summary>
 public class BaseViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;

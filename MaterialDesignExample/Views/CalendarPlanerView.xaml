@@ -82,7 +82,7 @@
                               ColumnHeaderStyle="{StaticResource DataGridColumnHeaderDefault}"
                               Style="{StaticResource DataGridDefault}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="SN" Binding="{Binding Serialnumber}" Width="85"></DataGridTextColumn>
+                            <DataGridTextColumn Header="SN" Binding="{Binding SerialNumber}" Width="85"></DataGridTextColumn>
                             <DataGridTextColumn Header="Standort" Binding="{Binding Location}" Width="1*"></DataGridTextColumn>
                             <DataGridTemplateColumn Width="112">
                                 <DataGridTemplateColumn.HeaderTemplate>

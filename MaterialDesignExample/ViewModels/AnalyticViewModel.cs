@@ -15,16 +15,16 @@ public class AnalyticViewModel : BaseViewModel
 {
     private readonly ICutterAccessLayer _cutterAccessLayer;
     private readonly IUserInputService _userInputService;
-    private readonly ICoorporateDesignService _coorporateDesignService;
+    private readonly IDesignService _coorporateDesignService;
     private readonly IGraphsService _graphsService;
 
-    private List<CutterAnalyseDto> _cutters = new();
+    private List<AnalysedCutterDto> _cutters = new();
     private int _daysLeftFilter = 360;
 
     public AnalyticViewModel(
         ICutterAccessLayer cutterAccessLayer, 
         IUserInputService userInputService, 
-        ICoorporateDesignService coorporateDesignService,
+        IDesignService coorporateDesignService,
         IGraphsService graphsService)
     {
         _cutterAccessLayer = cutterAccessLayer;
@@ -33,21 +33,18 @@ public class AnalyticViewModel : BaseViewModel
         _graphsService = graphsService;
     }
 
-    public void Loaded()
-    {
-        RefreshCutters();
-    }
+    public void Loaded() => RefreshCutters();
 
     public ICommand OrderCommand => new DelegateCommand()
     {
         CanExecuteFunc = () => SelectedCutter is not null,
         CommandAction = () =>
         {
-            if (!_userInputService.UserConfirmPopUp("Bestellen"))
-                return;
-
-            _cutterAccessLayer.Order(SelectedCutter!.Id);
-            RefreshCutters();
+            if (_userInputService.UserConfirmPopUp("Bestellen"))
+            {
+                _cutterAccessLayer.Order(SelectedCutter!.Id);
+                RefreshCutters();
+            }
         }
     };
 
@@ -61,13 +58,15 @@ public class AnalyticViewModel : BaseViewModel
         }
     };
 
-    private CutterAnalyseDto? _selectedCutter;
-    public CutterAnalyseDto? SelectedCutter
+    private AnalysedCutterDto? _selectedCutter;
+    public AnalysedCutterDto? SelectedCutter
     {
         get => _selectedCutter;
         set
         {
-            if (_selectedCutter == value) return;
+            if (_selectedCutter == value) 
+                return;
+
             _selectedCutter = value;
             OnPropertyChanged();
 
@@ -75,10 +74,10 @@ public class AnalyticViewModel : BaseViewModel
         }
     }
 
-    public ObservableCollection<CutterAnalyseDto> Cutters { get; set; } = new();
+    public ObservableCollection<AnalysedCutterDto> Cutters { get; set; } = new();
 
-    private CartesianChart _orderedChart;
-    public CartesianChart OrderedChart 
+    private CartesianChart? _orderedChart;
+    public CartesianChart? OrderedChart 
     {
         get => _orderedChart;
         set
@@ -91,8 +90,8 @@ public class AnalyticViewModel : BaseViewModel
         }
     }
 
-    private CartesianChart _locationChart;
-    public CartesianChart LocationChart 
+    private CartesianChart? _locationChart;
+    public CartesianChart? LocationChart 
     {
         get => _locationChart;
         set
@@ -113,6 +112,7 @@ public class AnalyticViewModel : BaseViewModel
         {
             _cutterSearchText = value;
             OnPropertyChanged();
+
             RefreshCutters();
         }
     }
@@ -130,26 +130,21 @@ public class AnalyticViewModel : BaseViewModel
 
     private void RefreshCutters()
     {
-        Cutters = new(_cutterAccessLayer.GetAnalyticData(_cutterSearchText, _daysLeftFilter));
-        OnPropertyChanged(nameof(Cutters));
-
+        Cutters = new(_cutterAccessLayer.GetAnalysedCutters(search: _cutterSearchText, daysLeftFilter: _daysLeftFilter));
         NoCuttersAvailable = Cutters.Count <= 0 ? true : false;
+
+        OnPropertyChanged(nameof(Cutters));
         RefreshGraphs();
     }
 
     public void RefreshGraphs()
     {
-        if (Cutters is null) 
+        if (Cutters is null || Cutters.Count is 0) 
             return;
 
-        var cutters = Cutters.ToList();
-
-        OrderedChart = _graphsService.GetOrderedChart(cutters, _daysLeftFilter);
-        OnPropertyChanged(nameof(OrderedChart));
-
-        LocationChart = _graphsService.GetLocationChart(cutters, _daysLeftFilter);
-        OnPropertyChanged(nameof(LocationChart));
+        OrderedChart = _graphsService.GetOrderedChart(Cutters.ToList(), _daysLeftFilter);
+        LocationChart = _graphsService.GetLocationChart(Cutters.ToList(), _daysLeftFilter);
     }
 
-    public void SelectedCutterChanged(CutterAnalyseDto cutter) => SelectedCutter = cutter;
+    public void SelectedCutterChanged(AnalysedCutterDto cutter) => SelectedCutter = cutter;
 }

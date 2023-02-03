@@ -5,13 +5,6 @@ namespace SealWatch.Data.Model;
 
 public class Cutter : Entity
 {
-    public Cutter()
-    {
-        SerialNumber = String.Empty;
-        MillingStart = DateTime.Now;
-        LifeSpan_h = 600;
-    }
-
     [Required]
     public int ProjectId { get; set; }
 

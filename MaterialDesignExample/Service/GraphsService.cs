@@ -9,18 +9,21 @@ using System.Windows.Media;
 
 namespace SealWatch.Wpf.Service;
 
+/// <summary>
+/// Generates graphs for AnalyticView
+/// </summary>
 public class GraphsService : IGraphsService
 {
-    private readonly ICoorporateDesignService _coorporateDesignService;
+    private readonly IDesignService _coorporateDesignService;
     private int _dayFilter = 7;
     private int _maxLocations = 7;
 
-    public GraphsService(ICoorporateDesignService coorporateDesignService)
+    public GraphsService(IDesignService coorporateDesignService)
     {
         _coorporateDesignService = coorporateDesignService;
     }
 
-    public CartesianChart GetOrderedChart(List<CutterAnalyseDto> cutters, int dayFilter = 7)
+    public CartesianChart GetOrderedChart(List<AnalysedCutterDto> cutters, int dayFilter = 7)
     {
         _dayFilter = dayFilter;
 
@@ -32,7 +35,7 @@ public class GraphsService : IGraphsService
         };
     }
 
-    public CartesianChart GetLocationChart(List<CutterAnalyseDto> cutters,  int dayFilter = 7)
+    public CartesianChart GetLocationChart(List<AnalysedCutterDto> cutters,  int dayFilter = 7)
     {
         _dayFilter = dayFilter;
 
@@ -44,7 +47,7 @@ public class GraphsService : IGraphsService
         };
     }
 
-    private SeriesCollection GetFailuresCollection(List<CutterAnalyseDto> cutters)
+    private SeriesCollection GetFailuresCollection(List<AnalysedCutterDto> cutters)
     {
         var cuttersOrdered = cutters.Where(x => x.SealOrdered).ToList();
 
@@ -166,7 +169,7 @@ public class GraphsService : IGraphsService
         return new AxesCollection() { axis };
     }
 
-    private SeriesCollection GetLocationCollection(List<CutterAnalyseDto> cutters)
+    private SeriesCollection GetLocationCollection(List<AnalysedCutterDto> cutters)
     {
         var columnSeries = new ColumnSeries()
         {
@@ -189,7 +192,7 @@ public class GraphsService : IGraphsService
 
         return new SeriesCollection { columnSeries };
     }
-    private AxesCollection GetLocationAxis(List<CutterAnalyseDto> cutters)
+    private AxesCollection GetLocationAxis(List<AnalysedCutterDto> cutters)
     {
         var axis = new Axis()
         {

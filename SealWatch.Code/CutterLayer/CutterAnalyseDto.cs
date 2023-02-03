@@ -2,9 +2,9 @@
 
 namespace SealWatch.Code.CutterLayer;
 
-public class CutterAnalyseDto : BaseListDto
+public class AnalysedCutterDto : BaseListDto
 {
-    public string Serialnumber { get; set; }
+    public string SerialNumber { get; set; }
 
     public string Location { get; set; }
 

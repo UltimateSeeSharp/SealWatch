@@ -9,6 +9,7 @@ namespace SealWatch.Wpf.ViewModels.Dialogs;
 public class DetailsViewModel : BaseViewModel
 {
     private readonly IProjectAccessLayer _projectAccessLayer;
+    
     public event EventHandler? CloseWindow;
 
     public DetailsViewModel(IProjectAccessLayer projectAccessLayer)
@@ -16,17 +17,7 @@ public class DetailsViewModel : BaseViewModel
         _projectAccessLayer = projectAccessLayer;  
     }
 
-    public void Loaded()
-    {
-        Project = _projectAccessLayer.GetDetails(Id);
-    }
-
-    public ICommand CloseCommand => new DelegateCommand()
-    {
-        CommandAction = () => CloseWindow!.Invoke(this, EventArgs.Empty)
-    };
-
-    public string TestTest { get; set; } = "2";
+    public int Id { get; set; }
 
     private ProjectDetailDto _project = new();
     public ProjectDetailDto Project
@@ -40,5 +31,10 @@ public class DetailsViewModel : BaseViewModel
         }
     }
 
-    public int Id { get; set; }
+    public void Loaded() => Project = _projectAccessLayer.GetDetails(Id);
+
+    public ICommand CloseCommand => new DelegateCommand()
+    {
+        CommandAction = () => CloseWindow!.Invoke(this, EventArgs.Empty)
+    };
 } 

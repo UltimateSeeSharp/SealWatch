@@ -9,25 +9,25 @@
 
 	<ItemGroup>
     <None Remove="appsettings.json" />
-    <None Remove="Fonts\LiebherrHead-Black.otf" />
-    <None Remove="Fonts\LiebherrHead-Regular.otf" />
-    <None Remove="Fonts\LiebherrText-Bold.otf" />
-    <None Remove="Fonts\LiebherrText-BoldItalic.otf" />
-    <None Remove="Fonts\LiebherrText-CondensedBold.otf" />
-    <None Remove="Fonts\LiebherrText-CondensedRegular.otf" />
-    <None Remove="Fonts\LiebherrText-Medium.otf" />
-    <None Remove="Fonts\LiebherrText-MediumItalic.otf" />
-    <None Remove="Fonts\LiebherrText-Regular.otf" />
-    <None Remove="Fonts\LiebherrText-RegularItalic.otf" />
-    <None Remove="Images\LiebherrLogoBlack.png" />
-    <None Remove="Images\LiebherrLogoWhite.png" />
-    <None Remove="Images\NewCrane.png" />
-    <None Remove="Images\NewCraneZoom.png" />
-    <None Remove="Images\NewMillingCutter.png" />
-    <None Remove="Images\splash.jpg" />
-    <None Remove="Images\splashBlur.jpg" />
-    <None Remove="Images\splashBlurText.jpg" />
-    <None Remove="Images\splashScreen.jpg" />
+    <None Remove="Assets\Fonts\LiebherrHead-Black.otf" />
+    <None Remove="Assets\Fonts\LiebherrHead-Regular.otf" />
+    <None Remove="Assets\Fonts\LiebherrText-Bold.otf" />
+    <None Remove="Assets\Fonts\LiebherrText-BoldItalic.otf" />
+    <None Remove="Assets\Fonts\LiebherrText-CondensedBold.otf" />
+    <None Remove="Assets\Fonts\LiebherrText-CondensedRegular.otf" />
+    <None Remove="Assets\Fonts\LiebherrText-Medium.otf" />
+    <None Remove="Assets\Fonts\LiebherrText-MediumItalic.otf" />
+    <None Remove="Assets\Fonts\LiebherrText-Regular.otf" />
+    <None Remove="Assets\Fonts\LiebherrText-RegularItalic.otf" />
+    <None Remove="Assets\Images\LiebherrLogoBlack.png" />
+    <None Remove="Assets\Images\LiebherrLogoWhite.png" />
+    <None Remove="Assets\Images\NewCrane.png" />
+    <None Remove="Assets\Images\NewCraneZoom.png" />
+    <None Remove="Assets\Images\NewMillingCutter.png" />
+    <None Remove="Assets\Images\splash.jpg" />
+    <None Remove="Assets\Images\splashBlur.jpg" />
+    <None Remove="Assets\Images\splashBlurText.jpg" />
+    <None Remove="Assets\Images\splashScreen.jpg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,13 +38,14 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.3.0" />
+    <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="LiveCharts" Version="0.9.7" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
     <PackageReference Include="MaterialDesignColors" Version="2.0.4" />
     <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.4.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
   </ItemGroup>
@@ -54,58 +55,58 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Fonts\LiebherrHead-Black.otf">
+    <Resource Include="Assets\Fonts\LiebherrHead-Black.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrHead-Regular.otf">
+    <Resource Include="Assets\Fonts\LiebherrHead-Regular.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrText-Bold.otf">
+    <Resource Include="Assets\Fonts\LiebherrText-Bold.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrText-BoldItalic.otf">
+    <Resource Include="Assets\Fonts\LiebherrText-BoldItalic.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrText-CondensedBold.otf">
+    <Resource Include="Assets\Fonts\LiebherrText-CondensedBold.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrText-CondensedRegular.otf">
+    <Resource Include="Assets\Fonts\LiebherrText-CondensedRegular.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrText-Medium.otf">
+    <Resource Include="Assets\Fonts\LiebherrText-Medium.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrText-MediumItalic.otf">
+    <Resource Include="Assets\Fonts\LiebherrText-MediumItalic.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrText-Regular.otf">
+    <Resource Include="Assets\Fonts\LiebherrText-Regular.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Fonts\LiebherrText-RegularItalic.otf">
+    <Resource Include="Assets\Fonts\LiebherrText-RegularItalic.otf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Images\LiebherrLogoBlack.png">
+    <Resource Include="Assets\Images\LiebherrLogoBlack.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Images\LiebherrLogoWhite.png">
+    <Resource Include="Assets\Images\LiebherrLogoWhite.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Images\NewCrane.png">
+    <Resource Include="Assets\Images\NewCrane.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Images\NewCraneZoom.png">
+    <Resource Include="Assets\Images\NewCraneZoom.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Images\NewMillingCutter.png">
+    <Resource Include="Assets\Images\NewMillingCutter.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\splash.jpg" />
-    <Resource Include="Images\splashBlur.jpg" />
-    <Resource Include="Images\splashBlurText.jpg" />
-    <Resource Include="Images\splashScreen.jpg" />
+    <Resource Include="Assets\Images\splash.jpg" />
+    <Resource Include="Assets\Images\splashBlur.jpg" />
+    <Resource Include="Assets\Images\splashBlurText.jpg" />
+    <Resource Include="Assets\Images\splashScreen.jpg" />
   </ItemGroup>
 
 </Project>

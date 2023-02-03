@@ -5,12 +5,6 @@ namespace SealWatch.Data.Model;
 
 public class Project : AuditableEntity
 {
-    public Project()
-    {
-        Location = String.Empty;
-        Cutters = new();
-    }
-
     [Required]
     public string Location { get; set; }
 
@@ -24,5 +18,5 @@ public class Project : AuditableEntity
     public DateTime StartDate { get; set; }
 
     [Required]
-    public List<Cutter> Cutters { get; set; }
+    public List<Cutter> Cutters { get; set; } = new();
 }

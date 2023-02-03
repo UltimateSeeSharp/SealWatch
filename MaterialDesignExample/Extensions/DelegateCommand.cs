@@ -3,6 +3,9 @@ using System.Windows.Input;
 
 namespace SealWatch.Wpf.Extensions;
 
+/// <summary>
+/// Custom ICommand to handle WPF commands.
+/// </summary>
 public class DelegateCommand : ICommand
 {
     public Action CommandAction { get; set; }

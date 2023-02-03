@@ -5,7 +5,7 @@ namespace SealWatch.Wpf.Views.Dialogs;
 
 public partial class CreateOrUpdateView : Window
 {
-    public CreateOrUpdateView(CreateOrUpdateViewModel createOrUpdateViewModel)
+    public CreateOrUpdateView(CreateOrUpdateProjectViewModel createOrUpdateViewModel)
     {
         InitializeComponent();
         DataContext = createOrUpdateViewModel;
@@ -20,6 +20,6 @@ public partial class CreateOrUpdateView : Window
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        (DataContext as CreateOrUpdateViewModel)!.Loaded();
+        (DataContext as CreateOrUpdateProjectViewModel)!.Loaded();
     }
 }

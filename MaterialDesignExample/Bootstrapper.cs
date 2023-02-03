@@ -1,11 +1,14 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SealWatch.Code;
 using SealWatch.Code.CutterLayer;
 using SealWatch.Code.HistoryLayer;
 using SealWatch.Code.ProjectLayer;
+using SealWatch.Code.Services;
 using SealWatch.Wpf.Config;
 using SealWatch.Wpf.Service;
+using SealWatch.Wpf.Service.Interfaces;
 using SealWatch.Wpf.ViewModels;
 using SealWatch.Wpf.ViewModels.Dialogs;
 using SealWatch.Wpf.Views;
@@ -29,9 +32,15 @@ public static class Bootstrapper
 
         _container = builder.Build();
 
+        
+
+        LoggerHelper.StartLogger();
     }
 
-    public static T Resolve<T>() => _container.Resolve<T>();
+    public static T Resolve<T>() => 
+        _container!.IsRegistered<T>() ? 
+        _container!.Resolve<T>() : 
+        default(T);
 
     private static ContainerBuilder Config(this ContainerBuilder builder)
     {
@@ -68,6 +77,21 @@ public static class Bootstrapper
 
     private static ContainerBuilder Setup(this ContainerBuilder builder)
     {
+        //  Services
+
+        builder.RegisterType<AnalyseService>().SingleInstance();
+
+        builder.RegisterType<UserInputService>().AsImplementedInterfaces();
+        builder.RegisterType<DesignService>().AsImplementedInterfaces();
+        builder.RegisterType<GraphsService>().AsImplementedInterfaces();
+        builder.RegisterType<CalendarService>().As<ICalendarService>();
+
+        builder.RegisterType<ProjectAccessLayer>().AsImplementedInterfaces();
+        builder.RegisterType<HistoryAccessLayer>().AsImplementedInterfaces();
+        builder.RegisterType<CutterAccessLayer>().AsImplementedInterfaces();
+
+        builder.RegisterType<Random>().SingleInstance();
+
         //  Windows
 
         builder.RegisterType<DashboardWindowViewModel>().SingleInstance();
@@ -91,27 +115,18 @@ public static class Bootstrapper
         builder.RegisterType<CreateOrUpdateCutterViewModel>().SingleInstance();
         builder.RegisterType<CreateOrUpdateCutterView>().SingleInstance();
 
-        builder.RegisterType<CreateOrUpdateViewModel>().SingleInstance();
+        builder.RegisterType<CreateOrUpdateProjectViewModel>().SingleInstance();
         builder.RegisterType<CreateOrUpdateView>().SingleInstance();
         
         builder.RegisterType<DetailsViewModel>().SingleInstance();
         builder.RegisterType<DetailsView>().SingleInstance();
-
-        //  Services
-
-        builder.RegisterType<SealWatchService>().AsImplementedInterfaces();
-        builder.RegisterType<UserInputService>().AsImplementedInterfaces();
-        builder.RegisterType<CoorporateDesignService>().AsImplementedInterfaces();
-        builder.RegisterType<GraphsService>().AsImplementedInterfaces();
-
-        builder.RegisterType<ProjectAccessLayer>().AsImplementedInterfaces();
-        builder.RegisterType<HistoryAccessLayer>().AsImplementedInterfaces();
-        builder.RegisterType<CutterAccessLayer>().AsImplementedInterfaces();
-
-        builder.RegisterType<Random>().SingleInstance();
         
         return builder;
     }
 
-    public static void Stop() => _container?.Dispose();
+    public static void Stop()
+    {
+        _container?.Dispose();
+        LoggerHelper.StopLogger();
+    }
 }

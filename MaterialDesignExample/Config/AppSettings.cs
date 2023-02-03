@@ -2,5 +2,5 @@
 
 public class AppSettings
 {
-    public string Version { get; set; } = "No version";
+    public string AppVersion { get; set; } = "v.2.0";
 }

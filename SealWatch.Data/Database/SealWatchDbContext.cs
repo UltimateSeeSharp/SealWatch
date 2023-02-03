@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using Bogus;
+using Microsoft.EntityFrameworkCore;
 using SealWatch.Data.Extensions;
 using SealWatch.Data.Model;
+using Serilog;
 
 namespace SealWatch.Data.Database;
 
@@ -134,25 +135,34 @@ public class SealWatchDbContext : DbContext
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    public static SealWatchDbContext NewContext(bool useInMemory = false)
+    public static SealWatchDbContext NewContext(bool useInMemory = true)
     {
         var dbOptions = new DbContextOptionsBuilder();
         var connectionString = @"Data Source=lwnsvsql02;Initial Catalog=FraesenMgmt;trusted_connection=true;";
-        
-        //  dbOptions.UseSqlServer(connectionString);
-        dbOptions.UseInMemoryDatabase("SealWatch");
+
+        if (useInMemory)
+        {
+            dbOptions.UseInMemoryDatabase("SealWatch");
+        }
+        else
+        {
+            dbOptions.UseSqlServer(connectionString);
+        }
 
         var context = new SealWatchDbContext(dbOptions.Options);
 
-        //try
-        //{
-        //    context.Database.CanConnect();
-        //}
-        //catch (Exception ex)
-        //{
-        //    MessageBox.Show($"No internet connection! / Permission not granted!. - code: {ex.Message}");
-        //    Environment.Exit(0);
-        //}
+        if (!useInMemory)
+        {
+            try
+            {
+                context.Database.CanConnect();
+            }
+            catch
+            {
+                Log.Fatal("Could not connect to database");
+                Environment.Exit(0);
+            }
+        }
 
         bool shouldSeed = true;
         if (shouldSeed)
@@ -172,340 +182,38 @@ public class SealWatchDbContext : DbContext
 
         isSeeded = true;
 
-        var project1 = new Project()
-        {
-            Location = "Petersburg",
-            Blades = 2,
-            SlitDepth_m = 5,
-            Cutters = new List<Cutter>() { },
-            StartDate = DateTime.Now.AddDays(-20),
-        };
-
-        var project2 = new Project()
-        {
-            Location = "Amsterdam",
-            Blades = 5,
-            SlitDepth_m = 3,
-            Cutters = new List<Cutter>() { },
-            StartDate = DateTime.Now.AddDays(-14),
-        };
-
-        var project3 = new Project
-        {
-            Location = "London",
-            Blades = 9,
-            SlitDepth_m = 12,
-            Cutters = new List<Cutter>() { },
-            StartDate = DateTime.Now.AddDays(-53)
-        };
-
-        var project5 = new Project
-        {
-            Location = "Wien",
-            Blades = 5,
-            SlitDepth_m = 8,
-            Cutters = new List<Cutter>() { },
-            StartDate = DateTime.Now.AddDays(-53)
-        };
-
-        var project4 = new Project
-        {
-            Location = "Moskau",
-            Blades = 9,
-            SlitDepth_m = 1,
-            Cutters = new List<Cutter>() { },
-            StartDate = DateTime.Now.AddDays(-53)
-        };
-
-        var project6 = new Project
-        {
-            Location = "Lissabon",
-            Blades = 2,
-            SlitDepth_m = 6,
-            Cutters = new List<Cutter>() { },
-            StartDate = DateTime.Now.AddDays(-53)
-        };
-
-        var project7 = new Project
-        {
-            Location = "Kiev",
-            Blades = 4,
-            SlitDepth_m = 14,
-            Cutters = new List<Cutter>() { },
-            StartDate = DateTime.Now.AddDays(-53)
-        };
-
-        Add(project1);
-        Add(project2);
-        Add(project3);
-        Add(project4);
-        Add(project5);
-        Add(project6);
-        Add(project7);
-
-        SaveChanges();
-
         var random = new Random();
 
-        var cutter = new Cutter()
-        {
-            ProjectId = project1.Id,
-            SerialNumber = "181-569",
-            MillingStart = DateTime.Now,
-            MillingStop = DateTime.Now.AddDays(random.Next(0, 10)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
+        var fakeProjects = new Faker<Project>()
+            .RuleFor(x => x.Location, location => location.Address.City())
+            .RuleFor(x => x.Blades, blades => blades.Random.Int(1, 10))
+            .RuleFor(x => x.SlitDepth_m, depth => depth.Random.Int(1, 10))
+            .RuleFor(x => x.StartDate, date => date.Date.Between(DateTime.Now, DateTime.Now.AddDays(-100)));
 
-        var cutterTwo = new Cutter()
-        {
-            ProjectId = project2.Id,
-            SerialNumber = "181-635",
-            MillingStart = new DateTime(2018, 5, 12),
-            MillingStop = DateTime.Now.AddDays(random.Next(0, 10)),
-            WorkDays = 6,
-            MillingPerDay_h = 7,
-            MillingDuration_y = 1.5,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
+        var fakeCutters = new Faker<Cutter>()
+            .RuleFor(x => x.SerialNumber, number => "181-" + number.Random.Int(100, 999).ToString())
+            .RuleFor(x => x.MillingStart, date => date.Date.Between(DateTime.Now.AddDays(-10), DateTime.Now.AddDays(-30)))
+            .RuleFor(x => x.MillingStop, stopDate => stopDate.Date.Between(DateTime.Now.AddDays(30), DateTime.Now.AddDays(300)))
+            .RuleFor(x => x.WorkDays, days => days.Random.Int(1, 7))
+            .RuleFor(x => x.MillingPerDay_h, perDay => perDay.Random.Int(1, 23))
+            .RuleFor(x => x.MillingDuration_y, years => years.Random.Int(1, 5))
+            .RuleFor(x => x.SealOrdered, ordered => ordered.Random.Bool())
+            .RuleFor(x => x.LifeSpan_h, lifespan => 600);
 
-        var cutterThree = new Cutter()
-        {
-            ProjectId = project2.Id,
-            SerialNumber = "181-784",
-            MillingStart = new DateTime(2020, 11, 23),
-            MillingStop = DateTime.Now.AddDays(random.Next(0, 10)),
-            WorkDays = 4,
-            MillingPerDay_h = 9,
-            MillingDuration_y = 0.5,
-            SealOrdered = false,
-            LifeSpan_h = 800
-        };
+        var projects = fakeProjects.Generate(20);
 
-        var cutterFour = new Cutter
-        {
-            ProjectId = project1.Id,
-            SerialNumber = $"181-865",
-            MillingStart = new DateTime(2021, 4, 12),
-            MillingStop = DateTime.Now.AddDays(-1),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterFive = new Cutter
-        {
-            ProjectId = project1.Id,
-            SerialNumber = $"181-673",
-            MillingStart = new DateTime(2021, 11, 2),
-            MillingStop = DateTime.Now.AddDays(random.Next(0, 10)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterSix = new Cutter
-        {
-            ProjectId = project1.Id,
-            SerialNumber = $"181-236",
-            MillingStart = new DateTime(2021, 6, 18),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterSeven = new Cutter
-        {
-            ProjectId = project2.Id,
-            SerialNumber = $"181-964",
-            MillingStart = new DateTime(2021, 8, 17),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterEight = new Cutter
-        {
-            ProjectId = project2.Id,
-            SerialNumber = $"181-642",
-            MillingStart = new DateTime(2021, 6, 25),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-
-        var cutterEightA = new Cutter
-        {
-            ProjectId = project2.Id,
-            SerialNumber = $"181-442",
-            MillingStart = DateTime.Now.AddDays(1 - 104).Date,
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterEightB = new Cutter
-        {
-            ProjectId = project1.Id,
-            SerialNumber = $"181-652",
-            MillingStart = DateTime.Now.AddDays(4 - 104),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterEightC = new Cutter
-        {
-            ProjectId = project4.Id,
-            SerialNumber = $"181-662",
-            MillingStart = DateTime.Now.AddDays(4 - 104),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterEightD = new Cutter
-        {
-            ProjectId = project5.Id,
-            SerialNumber = $"181-672",
-            MillingStart = DateTime.Now.AddDays(6 - 104),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterEightE = new Cutter
-        {
-            ProjectId = project6.Id,
-            SerialNumber = $"181-682",
-            MillingStart = DateTime.Now.AddDays(5 - 104),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterEightF = new Cutter
-        {
-            ProjectId = project3.Id,
-            SerialNumber = $"181-692",
-            MillingStart = DateTime.Now.AddDays(4 - 104),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterEightG = new Cutter
-        {
-            ProjectId = project7.Id,
-            SerialNumber = $"181-640",
-            MillingStart = DateTime.Now.AddDays(3 - 104),
-            MillingStop = DateTime.Now.AddDays(random.Next(50, 180)),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        var cutterEightH = new Cutter
-        {
-            ProjectId = project3.Id,
-            SerialNumber = $"181-641",
-            MillingStart = DateTime.Now,
-            MillingStop = DateTime.Now.AddHours(14),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        ; var cutterEightI = new Cutter
-        {
-            ProjectId = project3.Id,
-            SerialNumber = $"181-642",
-            MillingStart = DateTime.Now,
-            MillingStop = DateTime.Now.AddHours(6),
-            WorkDays = 5,
-            MillingPerDay_h = 8,
-            MillingDuration_y = 1,
-            SealOrdered = false,
-            LifeSpan_h = 600
-        };
-
-        Add(cutter);
-        Add(cutterTwo);
-        Add(cutterThree);
-        Add(cutterFour);
-        Add(cutterFive);
-        Add(cutterSix);
-        Add(cutterSeven);
-        Add(cutterEight);
-        Add(cutterEightA);
-        Add(cutterEightB);
-        Add(cutterEightC);
-        Add(cutterEightD);
-        Add(cutterEightE);
-        Add(cutterEightF);
-        Add(cutterEightG);
-        Add(cutterEightH);
-        Add(cutterEightI);
+        AddRange(projects);
         SaveChanges();
 
-        using var context = NewContext();
-        var cutters = context.Set<Cutter>().ToList();
-        foreach (var selectedCutter in cutters)
+        foreach (Project project in projects)
         {
-            selectedCutter.MillingStop = GetFailureDate(selectedCutter.WorkDays, selectedCutter.MillingPerDay_h, selectedCutter.LifeSpan_h, selectedCutter.MillingStart);
+            List<Cutter> cutters = fakeCutters.Generate(random.Next(2, 10));
+            cutters.Select(x => x.ProjectId = project.Id);
+            project.Cutters = cutters;
+            SaveChanges();
         }
 
-        SaveChanges();
-
-        var data = context.Set<Cutter>().ToList();
-    }
-
-    public DateTime GetFailureDate(int workDays, double millingPerDay, int lifeSpan, DateTime millingStart)
-    {
-        var currentDate = millingStart;
-        var hoursPerWeek = workDays * millingPerDay;
-        var weeksLeft = lifeSpan / hoursPerWeek;
-        return currentDate.AddDays(weeksLeft * 7);
+        var list = Set<Project>().ToList();
     }
 }
 

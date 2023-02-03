@@ -1,16 +1,14 @@
-﻿using SealWatch.Code.CutterLayer.Interfaces;
-using SealWatch.Code.HistoryLayer;
+﻿using SealWatch.Code.CutterLayer;
+using SealWatch.Code.CutterLayer.Interfaces;
+using SealWatch.Code.HistoryLayer.Interfaces;
 using SealWatch.Code.ProjectLayer;
 using SealWatch.Code.ProjectLayer.Intefaces;
-using SealWatch.Data.Model;
 using SealWatch.Wpf.Custom;
-using SealWatch.Wpf.Enums;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Service.Interfaces;
 using SealWatch.Wpf.ViewModels.Dialogs;
 using SealWatch.Wpf.Views.Dialogs;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -27,18 +25,21 @@ public class ProjectViewModel : BaseViewModel
     private readonly IUserInputService _userInputService;
 
     private Visibility _visibility = Visibility.All;
-    private List<CutterCard>? _allCutterCards = new();
     private int _lastSelectedProjectId = 0;
 
-    public ProjectViewModel(IProjectAccessLayer projectAccessLayer, ICutterAccessLayer cutterAccessLayer, IHistoryAccessLayer historyAccessLayer, IUserInputService userInputService)
+    public ProjectViewModel(
+        IProjectAccessLayer projectAccessLayer,
+        ICutterAccessLayer cutterAccessLayer,
+        IHistoryAccessLayer historyAccessLayer,
+        IUserInputService userInputService)
     {
         _projectAccessLayer = projectAccessLayer;
         _cutterAccessLayer = cutterAccessLayer;
         _historyAccessLayer = historyAccessLayer;
         _userInputService = userInputService;
-
-        LoadProjects();
     }
+
+    public void Loaded() => LoadProjects();
 
     public ICommand NewProjectCommand => new DelegateCommand()
     {
@@ -47,7 +48,8 @@ public class ProjectViewModel : BaseViewModel
             if (SelectedProject is not null)
                 _lastSelectedProjectId = SelectedProject.Id;
 
-            ShowToolDialog(x.ToString()!);
+            SubmitToolDialog(x.ToString()!);
+
             LoadProjects();
         }
     };
@@ -59,7 +61,7 @@ public class ProjectViewModel : BaseViewModel
         {
             _lastSelectedProjectId = SelectedProject!.Id;
 
-            ShowToolDialog(x.ToString()!);
+            SubmitToolDialog(x.ToString()!);
             LoadProjects();
         }
     };
@@ -71,16 +73,16 @@ public class ProjectViewModel : BaseViewModel
         {
             _lastSelectedProjectId = SelectedProject!.Id;
 
-            ShowToolDialog(x.ToString()!);
+            SubmitToolDialog(x.ToString()!);
             LoadProjects();
         }
     };
 
-    public ICommand ChangeProjectType => new DelegateCommand()
+    public ICommand ChangeProjectVisability => new DelegateCommand()
     {
         ObjectCommandAction = (x) =>
         {
-            object? visibility = null;  
+            object? visibility = null;
             Enum.TryParse(typeof(Visibility), x.ToString(), out visibility);
 
             if (visibility is not null)
@@ -104,8 +106,8 @@ public class ProjectViewModel : BaseViewModel
         }
     }
 
-    private Cutter? _selectedCutter;
-    public Cutter? SelectedCutter
+    private AnalysedCutterDto? _selectedCutter;
+    public AnalysedCutterDto? SelectedCutter
     {
         get => _selectedCutter;
         set
@@ -127,12 +129,8 @@ public class ProjectViewModel : BaseViewModel
             _cutterSearchText = value;
             OnPropertyChanged();
 
-            if (CutterCards.Count <= 0)
-                return;
-
-            var filteredCutters = _allCutterCards!.Where(x => x.Cutter.SerialNumber.ToLower().Contains(_cutterSearchText.ToLower())).ToList();
-            CutterCards = new(filteredCutters);
-            OnPropertyChanged(nameof(CutterCards));
+            if (CutterCards.Count > 0)
+                LoadCutterCards(CutterSearchText);
         }
     }
 
@@ -149,94 +147,84 @@ public class ProjectViewModel : BaseViewModel
 
     private void LoadProjects()
     {
-        Projects = new(_projectAccessLayer.GetList(_cutterSearchText, _visibility));
-        SelectedCutter = null;
         CutterCards.Clear();
+        SelectedCutter = null;
+
+        Projects = new(_projectAccessLayer.GetList(_cutterSearchText, _visibility));
 
         if (_lastSelectedProjectId is not 0)
-        {
             SelectedProject = Projects.FirstOrDefault(x => x.Id == _lastSelectedProjectId);
-            LoadCutterCards();
-        }
 
         OnPropertyChanged(nameof(Projects));
-        OnPropertyChanged(nameof(CutterCards));
     }
 
-    private void LoadCutterCards()
+    private void LoadCutterCards(string? search = null)
     {
+        if (SelectedProject is null || SelectedProject.Cutters is null || SelectedProject.Cutters.Count is 0)
+            return;
+
         CutterCards.Clear();
 
-        if (SelectedProject?.Cutters?.Count > 0)
-        {
-            SelectedProject!.Cutters!.ForEach(cutter => CutterCards.Add(new CutterCard() { Cutter = cutter }));
-            _allCutterCards = CutterCards.ToList();
-        }
-
-        NoCuttersAvailable = CutterCards.Count > 0 ? false : true;
+        var cutters = _cutterAccessLayer.GetAnalysedCutters(projectId: SelectedProject.Id, search: search);
+        cutters.ForEach(cutter => CutterCards.Add(new CutterCard() { Cutter = cutter }));
         OnPropertyChanged(nameof(CutterCards));
+
+        NoCuttersAvailable = CutterCards.Count <= 0 ? true : false;
     }
 
-    private void ShowToolDialog(string tool)
+    private void SubmitToolDialog(string tool)
     {
-        if (tool == "ProjectDelete" && UserConfirmed("Löschen"))
+        if (tool == "ProjectDelete" && _userInputService.UserConfirmPopUp("Löschen"))
         {
             _projectAccessLayer.Remove(SelectedProject!.Id);
         }
-        else if (tool == "ProjectDone" && UserConfirmed("Erledigt"))
+        else if (tool == "ProjectDone" && _userInputService.UserConfirmPopUp("Erledigt"))
         {
             _projectAccessLayer.Done(SelectedProject!.Id);
         }
-        else if (tool == "CutterDelete" && UserConfirmed("Löschen"))
+        else if (tool == "CutterDelete" && _userInputService.UserConfirmPopUp("Löschen"))
         {
             _cutterAccessLayer.Remove(SelectedCutter!.Id);
         }
         else if (tool.Contains("Dialog"))
         {
             var dialog = GetDialog(tool);
-            if (dialog is null) return;
-            dialog.ShowDialog();
+
+            if (dialog is not null)
+                dialog.ShowDialog();
         }
 
-        Window? GetDialog(string tool)
+        Window? GetDialog(string tool) => tool switch
         {
-            return tool switch
+            "ProjectEditDialog" => new CreateOrUpdateView(new CreateOrUpdateProjectViewModel(_projectAccessLayer, _userInputService)
             {
-                "ProjectEditDialog" => new CreateOrUpdateView(new CreateOrUpdateViewModel(_projectAccessLayer, _userInputService)
-                {
-                    Id = SelectedProject!.Id
-                }),
-                "ProjectHistoryDialog" => new HistoryView(new HistoryViewModel(_projectAccessLayer, _historyAccessLayer)
-                {
-                    RefId = SelectedProject!.Id.ToString(),
-                    Guid = _projectAccessLayer.GetGuid()
-                }),
-                "ProjectDetailsDialog" => new DetailsView(new DetailsViewModel(_projectAccessLayer)
-                {
-                    Id = SelectedProject!.Id
-                }),
-                "ProjectAddDialog" => new CreateOrUpdateView(new CreateOrUpdateViewModel(_projectAccessLayer, _userInputService)
-                {
-                    Id = 0
-                }),
-                "CutterEditDialog" => new CreateOrUpdateCutterView(new CreateOrUpdateCutterViewModel(_projectAccessLayer, _cutterAccessLayer, _userInputService)
-                {
-                    Id = SelectedCutter!.Id
-                }),
-                "CutterAddDialog" => new CreateOrUpdateCutterView(new CreateOrUpdateCutterViewModel(_projectAccessLayer, _cutterAccessLayer, _userInputService)
-                {
-                    Id = 0,
-                    ProjectId = SelectedProject!.Id
-                }),
-                _ => null
-            };
-        }
-
-        bool UserConfirmed(string message)
-        {
-            return _userInputService.UserConfirmPopUp(message);
-        }
+                Id = SelectedProject!.Id
+            }),
+            "ProjectHistoryDialog" => new HistoryView(new HistoryViewModel(_projectAccessLayer, _historyAccessLayer)
+            {
+                RefId = SelectedProject!.Id.ToString(),
+                Guid = _projectAccessLayer.GetGuid()
+            }),
+            "ProjectDetailsDialog" => new DetailsView(new DetailsViewModel(_projectAccessLayer)
+            {
+                Id = SelectedProject!.Id
+            }),
+            "ProjectAddDialog" => new CreateOrUpdateView(new CreateOrUpdateProjectViewModel(_projectAccessLayer, _userInputService)
+            {
+                Id = 0
+            }),
+            "CutterEditDialog" => new CreateOrUpdateCutterView(new CreateOrUpdateCutterViewModel(_projectAccessLayer, _cutterAccessLayer, _userInputService)
+            {
+                Id = SelectedCutter!.Id
+            }),
+            "CutterAddDialog" => new CreateOrUpdateCutterView(new CreateOrUpdateCutterViewModel(_projectAccessLayer, _cutterAccessLayer, _userInputService)
+            {
+                Id = 0,
+                ProjectId = SelectedProject!.Id
+            }),
+            _ => null
+        };
     }
 
-    internal void UpdateSelectedCutter(Cutter cutter) => SelectedCutter = cutter;
+    internal void UpdateSelectedCutter(AnalysedCutterDto cutter) => SelectedCutter = cutter;
 }
