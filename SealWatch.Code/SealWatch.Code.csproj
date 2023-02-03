@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SealWatch.Data\SealWatch.Data.csproj" />
+    <ProjectReference Include="..\SealWatch.Mocking\SealWatch.Mocking.csproj" />
   </ItemGroup>
 
 </Project>

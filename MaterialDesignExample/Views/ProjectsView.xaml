@@ -50,14 +50,14 @@
                         </StackPanel.Resources>
 
                         <RadioButton Content="Offen"
-                                     Command="{Binding ChangeProjectType}" CommandParameter="All"
+                                     Command="{Binding ChangeProjectVisability}" CommandParameter="All"
                                      IsChecked="True"
                                      Style="{StaticResource RadioButtonTab}"/>
                         <RadioButton Content="Gelöschte"
-                                     Command="{Binding ChangeProjectType}" CommandParameter="Deleted"
+                                     Command="{Binding ChangeProjectVisability}" CommandParameter="Deleted"
                                      Style="{StaticResource RadioButtonTab}"/>
                         <RadioButton Content="Erledigte"
-                                     Command="{Binding ChangeProjectType}" CommandParameter="Done"
+                                     Command="{Binding ChangeProjectVisability}" CommandParameter="Done"
                                      Style="{StaticResource RadioButtonTab}"/>
                     </StackPanel>
                     

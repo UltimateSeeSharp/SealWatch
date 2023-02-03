@@ -1,5 +1,4 @@
-﻿using Bogus;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SealWatch.Data.Extensions;
 using SealWatch.Data.Model;
 using Serilog;
@@ -164,56 +163,7 @@ public class SealWatchDbContext : DbContext
             }
         }
 
-        bool shouldSeed = true;
-        if (shouldSeed)
-        {
-            context.Seed();
-        }
-
         return context;
-    }
-
-
-    private static bool isSeeded = false;
-    public void Seed()
-    {
-        if (isSeeded)
-            return;
-
-        isSeeded = true;
-
-        var random = new Random();
-
-        var fakeProjects = new Faker<Project>()
-            .RuleFor(x => x.Location, location => location.Address.City())
-            .RuleFor(x => x.Blades, blades => blades.Random.Int(1, 10))
-            .RuleFor(x => x.SlitDepth_m, depth => depth.Random.Int(1, 10))
-            .RuleFor(x => x.StartDate, date => date.Date.Between(DateTime.Now, DateTime.Now.AddDays(-100)));
-
-        var fakeCutters = new Faker<Cutter>()
-            .RuleFor(x => x.SerialNumber, number => "181-" + number.Random.Int(100, 999).ToString())
-            .RuleFor(x => x.MillingStart, date => date.Date.Between(DateTime.Now.AddDays(-10), DateTime.Now.AddDays(-30)))
-            .RuleFor(x => x.MillingStop, stopDate => stopDate.Date.Between(DateTime.Now.AddDays(30), DateTime.Now.AddDays(300)))
-            .RuleFor(x => x.WorkDays, days => days.Random.Int(1, 7))
-            .RuleFor(x => x.MillingPerDay_h, perDay => perDay.Random.Int(1, 23))
-            .RuleFor(x => x.MillingDuration_y, years => years.Random.Int(1, 5))
-            .RuleFor(x => x.SealOrdered, ordered => ordered.Random.Bool())
-            .RuleFor(x => x.LifeSpan_h, lifespan => 600);
-
-        var projects = fakeProjects.Generate(20);
-
-        AddRange(projects);
-        SaveChanges();
-
-        foreach (Project project in projects)
-        {
-            List<Cutter> cutters = fakeCutters.Generate(random.Next(2, 10));
-            cutters.Select(x => x.ProjectId = project.Id);
-            project.Cutters = cutters;
-            SaveChanges();
-        }
-
-        var list = Set<Project>().ToList();
     }
 }
 

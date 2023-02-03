@@ -6,6 +6,7 @@ using SealWatch.Code.CutterLayer;
 using SealWatch.Code.HistoryLayer;
 using SealWatch.Code.ProjectLayer;
 using SealWatch.Code.Services;
+using SealWatch.Data.Database;
 using SealWatch.Wpf.Config;
 using SealWatch.Wpf.Service;
 using SealWatch.Wpf.Service.Interfaces;
@@ -26,23 +27,25 @@ public static class Bootstrapper
     public static void Start()
     {
         var builder = new ContainerBuilder()
-            .Config()
+            .ConfigContainer()
             .ConfigureLogging()
             .Setup();
 
         _container = builder.Build();
 
-        
-
-        LoggerHelper.StartLogger();
+        Mock();
+        StartLogger();
     }
 
-    public static T Resolve<T>() => 
-        _container!.IsRegistered<T>() ? 
-        _container!.Resolve<T>() : 
-        default(T);
+    public static void Stop()
+    {
+        _container?.Dispose();
+        LoggerHelper.StopLogger();
+    }
 
-    private static ContainerBuilder Config(this ContainerBuilder builder)
+    public static T Resolve<T>() => _container!.Resolve<T>();
+
+    private static ContainerBuilder ConfigContainer(this ContainerBuilder builder)
     {
         var configBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false);
 
@@ -97,36 +100,35 @@ public static class Bootstrapper
         builder.RegisterType<DashboardWindowViewModel>().SingleInstance();
         builder.RegisterType<DashboardWindow>().SingleInstance();
 
+        builder.RegisterType<SplashScreenViewModel>().SingleInstance();
         builder.RegisterType<SplashScreen>().SingleInstance();
-        
+
         //  UserControls
 
         builder.RegisterType<ProjectViewModel>().SingleInstance();
         builder.RegisterType<ProjectsView>().SingleInstance();
 
-        builder.RegisterType<AnalyticViewModel>().InstancePerDependency();      
+        builder.RegisterType<AnalyticViewModel>().InstancePerDependency();
         builder.RegisterType<AnalyticView>().InstancePerDependency();
 
-        builder.RegisterType<CalendarPlanerViewModel>().SingleInstance();      
-        builder.RegisterType<CalendarPlanerView>().SingleInstance();      
+        builder.RegisterType<CalendarPlanerViewModel>().SingleInstance();
+        builder.RegisterType<CalendarPlanerView>().SingleInstance();
 
         //  Dialogs
-        
+
         builder.RegisterType<CreateOrUpdateCutterViewModel>().SingleInstance();
         builder.RegisterType<CreateOrUpdateCutterView>().SingleInstance();
 
         builder.RegisterType<CreateOrUpdateProjectViewModel>().SingleInstance();
         builder.RegisterType<CreateOrUpdateView>().SingleInstance();
-        
+
         builder.RegisterType<DetailsViewModel>().SingleInstance();
         builder.RegisterType<DetailsView>().SingleInstance();
-        
+
         return builder;
     }
 
-    public static void Stop()
-    {
-        _container?.Dispose();
-        LoggerHelper.StopLogger();
-    }
+    private static void StartLogger() => LoggerHelper.StartLogger();
+
+    private static void Mock() => MockHelper.Mock(SealWatchDbContext.NewContext());
 }

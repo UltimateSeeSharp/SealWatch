@@ -72,7 +72,7 @@ public class CutterAccessLayer : ICutterAccessLayer
 
         foreach (AnalysedCutterDto cutter in cutters)
         {
-            cutter.DaysLeft = _analyseService.CalcDaysLeft(cutter.MillingStart, cutter.MillingStop);
+            cutter.DaysLeft = _analyseService.CalcDaysLeft(cutter.MillingStop);
             cutter.Durability = _analyseService.CalcDurability(cutter.MillingStart, cutter.MillingStop);
         }
 

@@ -19,16 +19,14 @@ public class AnalyseService
         return result;
     }
 
-    public int CalcDaysLeft(DateTime start, DateTime stop)
+    public int CalcDaysLeft(DateTime millingStop)
     {
-        var totalDays = (stop - start).TotalDays;
-        var passedDays = (DateTime.Now - start).TotalDays;
-        var result = (int)(totalDays - passedDays);
+        var daysToStop = (millingStop - DateTime.Now).TotalDays;
 
-        if (result < 0)
+        if (daysToStop < 0)
             Log.Error($"Calculation days left failed | Smaller 0");
 
-        return result;
+        return (int)Math.Ceiling(daysToStop);
     }
 
     public DateTime CalcFailureDate(DateTime millingStart, int workDays, double millingPerDay, double lifespan)
