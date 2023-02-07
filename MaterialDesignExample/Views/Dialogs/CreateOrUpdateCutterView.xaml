@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:converter="clr-namespace:SealWatch.Wpf.Converter"
         xmlns:local="clr-namespace:SealWatch.Wpf.Views.Dialogs"
         mc:Ignorable="d"
         Title="CreateOrUpdateCutterView" 
-        Height="565" Width="600"
+        Height="605" Width="600"
         AllowsTransparency="True" WindowStyle="None"
         WindowStartupLocation="CenterOwner"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
@@ -50,6 +51,7 @@
                         <StackPanel Grid.Column="0">
                             <Label Content="Frässtart" Style="{StaticResource Label_LiebherrMedium}"/>
                             <Label Content="Seriennummer" Style="{StaticResource Label_LiebherrMedium}"/>
+                            <Label Content="Bodenbeschaffenheit" Style="{StaticResource Label_LiebherrMedium}"/>
                             <Label Content="Fräsdauer [Jahre]" Style="{StaticResource Label_LiebherrMedium}"/>
                             <Label Content="Fräsdauer/Tag" Style="{StaticResource Label_LiebherrMedium}"/>
                             <Label Content="Arbeitstage" Style="{StaticResource Label_LiebherrMedium}"/>
@@ -65,6 +67,9 @@
                                 </DatePicker.Resources>
                             </DatePicker>
                             <TextBox Text="{Binding Cutter.SerialNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStackPanel}"/>
+                            <ComboBox SelectedItem="{Binding Cutter.SoilType, UpdateSourceTrigger=PropertyChanged}" 
+                                      ItemsSource="{Binding SoilTypeList, UpdateSourceTrigger=PropertyChanged}" 
+                                      Style="{StaticResource ComboBoxDefault}" Margin="20 8 35 0"/>
                             <TextBox Text="{Binding Cutter.MillingDuration_y, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStackPanel}"/>
                             <TextBox Text="{Binding Cutter.MillingPerDay_h, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStackPanel}"/>
                             <TextBox Text="{Binding Cutter.WorkDays, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStackPanel}"/>

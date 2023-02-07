@@ -94,6 +94,8 @@ public class ProjectAccessLayer : IProjectAccessLayer
         if (projectDto is null)
             return;
 
+        projectDto.StartDate = new(projectDto.StartDate.Year, projectDto.StartDate.Month, projectDto.StartDate.Day);
+
         using var context = SealWatchDbContext.NewContext();
 
         var project = context.Set<Project>().Find(projectDto?.Id);

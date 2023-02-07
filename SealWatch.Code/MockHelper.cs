@@ -33,6 +33,7 @@ public static class MockHelper
                 MillingDuration_y = x.MillingDuration_y,
                 SealOrdered = x.SealOrdered,
                 LifeSpan_h = x.LifeSpan_h,
+                SoilType = x.SoilType
             }).ToList();
 
             cutters.Select(x => x.ProjectId = project.Id);

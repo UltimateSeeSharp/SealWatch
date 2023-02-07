@@ -4,6 +4,7 @@ using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Service.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -29,7 +30,9 @@ public class CreateOrUpdateCutterViewModel : BaseViewModel
     public int ProjectId { get; set; }
     public string WindowTitle => Id is 0 ? "Fräse hinzufügen" : "Fräse editieren";
 
-    private CutterEditDto _cutter = new();
+    public List<string> SoilTypeList => _cutterAccessLayer.GetSoilTypes();
+
+    private CutterEditDto _cutter = new() { SoilType = "Normaler Boden"};
     public CutterEditDto Cutter
     {
         get => _cutter;

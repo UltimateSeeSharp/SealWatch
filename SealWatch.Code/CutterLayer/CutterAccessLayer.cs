@@ -22,6 +22,13 @@ public class CutterAccessLayer : ICutterAccessLayer
         return SealWatchDbContext.NewContext().Set<Cutter>().ToList();
     }
 
+    public List<string> GetSoilTypes() => new()
+    {
+        "Harter Boden",
+        "Normaler Boden",
+        "Weicher Boden"
+    };
+
     public CutterEditDto GetEditData(int id)
     {
         using var context = SealWatchDbContext.NewContext();
@@ -42,6 +49,7 @@ public class CutterAccessLayer : ICutterAccessLayer
             SealOrdered = cutter.SealOrdered,
             WorkDays = cutter.WorkDays,
             LifeSpan_h = cutter.LifeSpan_h,
+            SoilType = cutter.SoilType
         };
     }
 
@@ -72,14 +80,15 @@ public class CutterAccessLayer : ICutterAccessLayer
                 WorkDays = cutter.WorkDays,
                 LifeSpan_h = cutter.LifeSpan_h,
                 MillingPerDay_h = cutter.MillingPerDay_h,
-                MillingDuration_y = cutter.MillingDuration_y
+                MillingDuration_y = cutter.MillingDuration_y,
+                SoilType = cutter.SoilType
             }));
         }
 
         foreach (AnalysedCutterDto cutter in cutters)
         {
-            cutter.DaysLeft = _analyseService.CalcRelativeTimeInDays(cutter.MillingStop, accuracy: _accuracy);
-            cutter.Durability = _analyseService.CalcDurability(cutter.MillingStart, cutter.MillingStop, accuracy: _accuracy);
+            cutter.DaysLeft = _analyseService.CalcRelativeTimeInDays(cutter.MillingStop, DateTime.Now, accuracy: _accuracy);
+            cutter.Durability = _analyseService.CalcDurability(cutter.MillingStart, cutter.MillingStop, DateTime.Now, accuracy: _accuracy);
         }
 
         if (search is not null)
@@ -95,6 +104,8 @@ public class CutterAccessLayer : ICutterAccessLayer
     {
         if (cutterDto is null)
             return;
+
+        cutterDto.MillingStart = new(cutterDto.MillingStart.Year, cutterDto.MillingStart.Month, cutterDto.MillingStart.Day);
 
         using var context = SealWatchDbContext.NewContext();
         var cutter = context.Set<Cutter>().Find(cutterDto.Id);
@@ -113,7 +124,8 @@ public class CutterAccessLayer : ICutterAccessLayer
             LifeSpan_h = cutterDto.LifeSpan_h,
             WorkDays = cutterDto.WorkDays,
             SealOrdered = false,
-            MillingStop = _analyseService.CalcFailureDate(cutterDto.MillingStart, cutterDto.WorkDays, cutterDto.MillingPerDay_h, cutterDto.LifeSpan_h)
+            MillingStop = _analyseService.CalcFailureDate(cutterDto.MillingStart, cutterDto.WorkDays, cutterDto.MillingPerDay_h, cutterDto.LifeSpan_h),
+            SoilType = cutterDto.SoilType
         };
 
         context.Set<Cutter>().Add(newCutter);

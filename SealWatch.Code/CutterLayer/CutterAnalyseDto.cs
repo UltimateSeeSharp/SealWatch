@@ -18,6 +18,8 @@ public class AnalysedCutterDto : BaseListDto
 
     public bool SealOrdered { get; set; }
 
+    public string SoilType { get; set; }
+
     public double MillingPerDay_h { get; set; }
 
     public double MillingDuration_y { get; set; }

@@ -59,12 +59,12 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            
+
             <Style x:Key="TextBlock_LiebherrText" TargetType="TextBlock">
                 <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Light"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
             </Style>
-            
+
             <Style x:Key="Label_LiebherrText" TargetType="Label">
                 <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Light"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -83,6 +83,17 @@
                 <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Bold"/>
                 <Setter Property="TextElement.FontSize" Value="30"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
+            </Style>
+
+            <!--ComboBox-->
+            <Style x:Key="ComboBoxDefault" TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
+                <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Light"/>
+                <Setter Property="TextElement.FontSize" Value="16"/>
+                <Setter Property="BorderBrush" Value="Gold" />
+                <Setter Property="Padding" Value="0 0 0 10"/>
+                <Style.Resources>
+                    <SolidColorBrush x:Key="MaterialDesignPaper" Color="White"></SolidColorBrush>
+                </Style.Resources>
             </Style>
 
             <!--DataGrid-->

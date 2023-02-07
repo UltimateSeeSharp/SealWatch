@@ -8,8 +8,8 @@
         mc:Ignorable="d"
         Title="LWN SealWatch"
         WindowStartupLocation="CenterScreen"
-        Height="1010" Width="1575"
-        MinHeight="810" MinWidth="1345">
+        Height="1010" Width="1600"
+        MinHeight="980" MinWidth="1330">
     <Grid>
 
         <Grid.RowDefinitions>

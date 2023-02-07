@@ -23,6 +23,9 @@ public class Cutter : Entity
     [Required]
     public double MillingDuration_y { get; set; }
 
+    [Required]
+    public string SoilType { get; set; }
+
     public DateTime MillingStop { get; set; }
 
     public bool SealOrdered { get; set; }

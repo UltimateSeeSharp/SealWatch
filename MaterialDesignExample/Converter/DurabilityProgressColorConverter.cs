@@ -9,22 +9,22 @@ namespace SealWatch.Wpf.Converter;
 /// <summary>
 /// Determines the color of the CutterCard's progress bar.
 /// Value equals Durability and should be between 0-100 for a working cutter.
-/// Can exceed 100 if MillingStop is in the past => pink color
+/// Can exceed 100 if MillingStop is in the past => red color
 /// </summary>
 [ValueConversion(typeof(int), typeof(Brush))]
 internal class DurabilityProgressColorConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        int result = 0;
-        int.TryParse(value.ToString(), out result);
+        if (!(value is double number))
+            return Brushes.Blue;
 
-        return result switch
+        return number switch
         {
             <= 70 => Brushes.LimeGreen,
             <= 80 => Brushes.Orange,
-            <= 100 => Brushes.Red,
-            _ => Brushes.DeepPink
+            <= 100 => Brushes.OrangeRed,
+            _ => Brushes.Red
         };
     }
 

@@ -31,7 +31,7 @@
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="8*"/>
             <ColumnDefinition Width="4*"/>
         </Grid.ColumnDefinitions>
 
@@ -79,10 +79,11 @@
                                   ColumnHeaderStyle="{StaticResource DataGridColumnHeaderDefault}"
                                   Style="{StaticResource DataGridDefault}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="SN" Binding="{Binding SerialNumber}" Width="100"/>
-                                <DataGridTextColumn Header="Standort" Binding="{Binding Location}" Width="1*"/>
-                                <DataGridTextColumn Header="Frässtart" Binding="{Binding MillingStart, StringFormat=dd-MM-yyy}" Width="1*"/>
-                                <DataGridTemplateColumn Width="112">
+                                <DataGridTextColumn Header="SN" Binding="{Binding SerialNumber}" Width="85"/>
+                                <DataGridTextColumn Header="Standort" Binding="{Binding Location}" Width="20*"/>
+                                <DataGridTextColumn Header="Bodenart" Binding="{Binding SoilType}" Width="20*"/>
+                                <DataGridTextColumn Header="Frässtart" Binding="{Binding MillingStart, StringFormat=dd-MM-yyy}" Width="17*"/>
+                                <DataGridTemplateColumn Width="17*">
                                     <DataGridTemplateColumn.HeaderTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="Wartung"/>
@@ -95,12 +96,12 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="Abnutzung" Binding="{Binding Durability, StringFormat={}{0} %}" Width="1*"/>
-                                <DataGridTextColumn Header="Tage verbleibend" Binding="{Binding DaysLeft}" Width="150"/>
-                                <DataGridTemplateColumn Width="120">
+                                <DataGridTextColumn Header="Abnutzung" Binding="{Binding Durability, StringFormat={}{0} %}" Width="15*"/>
+                                <DataGridTextColumn Header="Tage" Binding="{Binding DaysLeft}" Width="10*"/>
+                                <DataGridTemplateColumn Width="16*">
                                     <DataGridTemplateColumn.HeaderTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="Bestellstatus"/>
+                                            <TextBlock Text="Status"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.HeaderTemplate>
                                     <DataGridTemplateColumn.CellTemplate>

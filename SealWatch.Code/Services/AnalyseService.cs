@@ -13,10 +13,13 @@ public class AnalyseService
     /// <param name="stop">Day at which the cutter stops milling - new seal is needed</param>
     /// <param name="accuracy">Accuracy of decimal places</param>
     /// <returns></returns>
-    public double CalcDurability(DateTime start, DateTime stop, int accuracy = 0)
+    public double CalcDurability(DateTime start, DateTime stop, DateTime currentDate, int accuracy = 0)
     {
+        if (start >= currentDate)
+            return 0;
+
         var totalDays1Perc = (stop - start).TotalDays / 100;
-        var passedDays = (DateTime.Now - start).TotalDays;
+        var passedDays = (currentDate - start).TotalDays;
 
         var pace = passedDays / totalDays1Perc;
         var result = Math.Round(pace, accuracy);
@@ -31,9 +34,9 @@ public class AnalyseService
     /// <param name="millingStop">Day at which the cutter stops milling - new seal is needed</param>
     /// <param name="accuracy">Accuracy of decimal places</param>
     /// <returns></returns>
-    public double CalcRelativeTimeInDays(DateTime millingStop, int accuracy = 0)
+    public double CalcRelativeTimeInDays(DateTime millingStop, DateTime currentDate, int accuracy = 0)
     {
-        var daysToStop = (millingStop - DateTime.Now).TotalDays;
+        var daysToStop = (millingStop - currentDate).TotalDays;
         return Math.Round(daysToStop, accuracy);
     }
 
@@ -48,14 +51,21 @@ public class AnalyseService
     /// <returns></returns>
     public DateTime CalcFailureDate(DateTime millingStart, int workDays, double millingPerDay, double lifespan)
     {
-        var hoursPerWeek = workDays * millingPerDay;
-        var weeksLeft = lifespan / hoursPerWeek;
-        var millingStop = millingStart.AddDays(weeksLeft * 7);
+        DateTime start = millingStart;
 
-        if (millingStop < millingStart)
-            Log.Error($"Calculation failure date failed | milling stop before milling start - start:{millingStart}, workDays:{workDays}, millingPerDay:{millingPerDay}, lifespan:{lifespan}, stop:{millingStop}");
+        while (lifespan > 0 && lifespan > millingPerDay * workDays)
+        {
+            lifespan -= (millingPerDay * workDays);
+            start = start.AddDays(7);
+        }
 
-        return millingStop;
+        if (lifespan is not 0)
+        {
+            var left = lifespan / millingPerDay;
+            start = start.AddDays(left);
+        }
+
+        return start;
     }
 
     /// <summary>
@@ -66,7 +76,7 @@ public class AnalyseService
     public List<DateTime> GetFailureDates(AnalysedCutterDto cutter)
     {
         List<DateTime> failureDates = new();
-        DateTime endDate = cutter.MillingStart.AddYears(Convert.ToInt32(cutter.MillingDuration_y));
+        DateTime endDate = cutter.MillingStart.AddMonths((int)(cutter.MillingDuration_y * 12));
 
         do
         {
