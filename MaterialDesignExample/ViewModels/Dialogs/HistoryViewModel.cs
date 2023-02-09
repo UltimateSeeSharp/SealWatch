@@ -62,6 +62,7 @@ public class HistoryViewModel : BaseViewModel
         if (_refId is null && _guid is null)
             return;
 
+        //  ToDo: History exception
         History = new ObservableCollection<HistoryListDto>(_historyAccessLayer.GetList(_guid.Value, _refId));
     }
 

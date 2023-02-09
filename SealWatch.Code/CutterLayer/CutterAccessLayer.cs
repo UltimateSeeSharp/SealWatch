@@ -58,6 +58,11 @@ public class CutterAccessLayer : ICutterAccessLayer
         using var context = SealWatchDbContext.NewContext();
 
         var projects = context.Set<Project>().Include(item => item.Cutters);
+        if (!projects.Any())
+        {
+            Log.Error("AccessLayer - GetAnalysedCutters | Could not find any projects");
+            return new();
+        }
         var cutters = new List<AnalysedCutterDto>();
 
         if (fromProjectId is not null)
@@ -139,7 +144,7 @@ public class CutterAccessLayer : ICutterAccessLayer
         var cutter = context.Set<Cutter>().Find(id);
         if (cutter is null)
         {
-            Log.Error($"Tried to delete non-existing cutter - ID: {id}");
+            Log.Error($"CutterAccessLayer - Remove | Tried to delete non-existing cutter - ID: {id}");
             return;
         }
 
@@ -154,7 +159,7 @@ public class CutterAccessLayer : ICutterAccessLayer
         var cutter = context.Set<Cutter>().Find(id);
         if (cutter is null)
         {
-            Log.Error($"Tried to order non-existing cutter - ID: {id}");
+            Log.Error($"CutterAccessLayer - Remove | Tried to order non-existing cutter - ID: {id}");
             return;
         }
 

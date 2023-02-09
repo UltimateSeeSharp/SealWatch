@@ -3,6 +3,7 @@ using SealWatch.Code.Enums;
 using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Data.Database;
 using SealWatch.Data.Model;
+using Serilog;
 
 namespace SealWatch.Code.ProjectLayer;
 
@@ -94,6 +95,7 @@ public class ProjectAccessLayer : IProjectAccessLayer
         if (projectDto is null)
             return;
 
+        //  Remove time from DateTime for accurate calculations in AnalyseServices
         projectDto.StartDate = new(projectDto.StartDate.Year, projectDto.StartDate.Month, projectDto.StartDate.Day);
 
         using var context = SealWatchDbContext.NewContext();
@@ -118,7 +120,10 @@ public class ProjectAccessLayer : IProjectAccessLayer
 
         var project = context.Set<Project>().Find(id);
         if (project is null)
+        {
+            Log.Error($"ProjectAccessLayer - Remove | Tried to remove non-existing project - ID: {id}");
             return;
+        }
 
         project.IsDeleted = !project.IsDeleted;
         context.SaveChanges();
@@ -130,7 +135,10 @@ public class ProjectAccessLayer : IProjectAccessLayer
 
         var project = context.Set<Project>().Find(id);
         if (project is null)
+        {
+            Log.Error($"ProjectAccessLayer - Done | Tried to mark non-existing project as done - ID: {id}");
             return;
+        }
 
         project.IsDone = !project.IsDone;
         context.SaveChanges();

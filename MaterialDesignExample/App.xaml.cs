@@ -20,7 +20,7 @@ public partial class App : Application
         MainWindow = Bootstrapper.Resolve<SplashScreen>();
         MainWindow.Show();
     }
-
+    
     protected override void OnExit(ExitEventArgs e)
     {
         base.OnExit(e);

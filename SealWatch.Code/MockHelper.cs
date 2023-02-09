@@ -4,6 +4,10 @@ using SealWatch.Mocking.Model;
 
 namespace SealWatch.Code;
 
+/// <summary>
+/// Generates and saves mock data in database (inMemory)
+/// Gets controlled by Wpf.Bootstrapper
+/// </summary>
 public static class MockHelper
 {
     public static void Mock(SealWatchDbContext context)

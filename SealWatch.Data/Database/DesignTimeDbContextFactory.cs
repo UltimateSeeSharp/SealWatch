@@ -9,12 +9,8 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<SealWatchD
     private static bool IKnowWhatIAmDoing = true;
 
     public SealWatchDbContext CreateDbContext(string[] args)
-
     {
-        //Vor jedem Migrate und Update den Wert auf True setzen und anschließend zurücksetzen!
-
         if (!IKnowWhatIAmDoing)
-
         {
             throw new Exception($"Error in {GetType().FullName}.{System.Reflection.MethodBase.GetCurrentMethod().Name}(...) - Do you know what you do?");
         }

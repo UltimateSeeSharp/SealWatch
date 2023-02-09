@@ -16,6 +16,7 @@ public class SealWatchDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        //  Register any Model which implements IEntity to the modelBuilder
         foreach (var type in GetType().Assembly.GetExportedTypes()
                                         .Where(p => typeof(IEntity).IsAssignableFrom(p)))
         {
@@ -25,6 +26,7 @@ public class SealWatchDbContext : DbContext
             }
         }
 
+        //  Get relations and set DeleteBeahvoir to restrict
         var relations = modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys());
         foreach (var relationship in relations)
         {
@@ -142,6 +144,7 @@ public class SealWatchDbContext : DbContext
         if (useInMemory)
         {
             dbOptions.UseInMemoryDatabase("SealWatch");
+            Log.Information("SealWatchDbContext - NewContext | Started Context in InMemory database");
         }
         else
         {
@@ -155,10 +158,11 @@ public class SealWatchDbContext : DbContext
             try
             {
                 context.Database.CanConnect();
+                Log.Information($"Connection to database successful - {connectionString}");
             }
             catch
             {
-                Log.Fatal("Could not connect to database");
+                Log.Error("Could not connect to database");
                 Environment.Exit(0);
             }
         }

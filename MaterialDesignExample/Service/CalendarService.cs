@@ -27,6 +27,12 @@ public class CalendarService : ICalendarService
         }
     }
 
+    /// <summary>
+    /// Initializes the calendar from the current date.
+    /// Draws selection at future maintenance dates
+    /// </summary>
+    /// <param name="calendars">Calendars from CalendarView. Shows next few years</param>
+    /// <param name="failureDates">Next failure dates from a specific cutter</param>
     public void DrawSelected(List<Calendar> calendars, List<DateTime> failureDates)
     {
         InitializeCalendars(failureDates.First(), calendars);

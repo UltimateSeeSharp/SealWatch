@@ -31,7 +31,7 @@ public partial class CutterCard : UserControl
 
 /// <summary>
 /// Adding time a suffix to something
-/// 2:03 => 2:03 Hours
+/// e.g.: 2:03 => 2:03 Hours
 /// </summary>
 internal class AddHoursConverter : IValueConverter
 {

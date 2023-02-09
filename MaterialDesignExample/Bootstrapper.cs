@@ -18,7 +18,6 @@ using SealWatch.Wpf.Views.Dialogs;
 using Serilog;
 using Serilog.Extensions.Logging;
 using System;
-using System.Configuration;
 
 namespace SealWatch.Wpf;
 
@@ -29,30 +28,21 @@ public static class Bootstrapper
     public static void Start()
     {
         var builder = new ContainerBuilder()
-            .ConfigContainer()
             .ConfigureLogging()
             .Setup();
 
         _container = builder.Build();
 
         Mock();
-        StartLogger();
     }
 
     public static void Stop()
     {
         _container?.Dispose();
-        LoggerHelper.StopLogger();
     }
 
     public static T Resolve<T>() => _container!.Resolve<T>();
 
-    private static ContainerBuilder ConfigContainer(this ContainerBuilder builder)
-    {
-
-
-        return builder;
-    }
 
     public static ContainerBuilder ConfigureLogging(this ContainerBuilder builder)
     {
@@ -134,8 +124,6 @@ public static class Bootstrapper
 
         return builder;
     }
-
-    private static void StartLogger() => LoggerHelper.StartLogger();
 
     private static void Mock() => MockHelper.Mock(SealWatchDbContext.NewContext());
 }
