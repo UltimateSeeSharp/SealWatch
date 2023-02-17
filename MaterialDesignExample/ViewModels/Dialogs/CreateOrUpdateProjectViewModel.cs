@@ -49,7 +49,7 @@ public class CreateOrUpdateProjectViewModel : BaseViewModel
         CanExecuteFunc = () => Project is not null,
         CommandAction = () =>
         {
-            var validationErrors = _userInputService.GetInvalidProjectInputs(Project);
+            var validationErrors = _userInputService.GetProjectValidationErrors(Project);
             if (validationErrors.Count > 0)
             {
                 var error = validationErrors.First();

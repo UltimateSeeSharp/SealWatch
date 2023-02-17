@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SealWatch.Code.CutterLayer.Interfaces;
+using SealWatch.Code.Enums;
 using SealWatch.Code.Services;
 using SealWatch.Data.Database;
 using SealWatch.Data.Model;
 using Serilog;
+using System.Reflection.Metadata.Ecma335;
 
 namespace SealWatch.Code.CutterLayer;
 
@@ -17,27 +19,16 @@ public class CutterAccessLayer : ICutterAccessLayer
         _accuracy = accuracy;
     }
 
-    public List<Cutter> GetList()
-    {
-        return SealWatchDbContext.NewContext().Set<Cutter>().ToList();
-    }
+    public List<Cutter> GetList() => SealWatchDbContext.NewContext().Set<Cutter>().ToList();
 
-    public List<string> GetSoilTypes() => new()
-    {
-        "Harter Boden",
-        "Normaler Boden",
-        "Weicher Boden"
-    };
+    public List<string> GetSoilTypes() => new() { "Harter Boden", "Normaler Boden", "Weicher Boden" };
 
     public CutterEditDto GetEditData(int id)
     {
         using var context = SealWatchDbContext.NewContext();
-
         var cutter = context.Set<Cutter>().Find(id);
-        if (cutter is null)
-            return new();
 
-        return new CutterEditDto()
+        return cutter == null ? new() : new CutterEditDto()
         {
             Id = cutter.Id,
             ProjectId = cutter.ProjectId,
@@ -53,7 +44,7 @@ public class CutterAccessLayer : ICutterAccessLayer
         };
     }
 
-    public List<AnalysedCutterDto> GetAnalysedCutters(string? search = null, int? daysLeftFilter = null, int? fromProjectId = null, int accuracy = 0)
+    public List<AnalysedCutterDto> GetAnalysedCutters(string? search = null, Timeframe? timeframe = null, int? fromProjectId = null, int accuracy = 0)
     {
         using var context = SealWatchDbContext.NewContext();
 
@@ -99,10 +90,13 @@ public class CutterAccessLayer : ICutterAccessLayer
         if (search is not null)
             cutters = cutters.Where(x => x.SerialNumber.ToLower().Contains(search.ToLower())).ToList();
 
-        if (daysLeftFilter is not null)
-            cutters = cutters.Where(x => x.DaysLeft <= daysLeftFilter).ToList();
-
-        return cutters;
+        return timeframe switch
+        {
+            Timeframe.Year => cutters.Where(c => c.DaysLeft <= (int)timeframe).ToList(),
+            Timeframe.Month => cutters.Where(c => c.DaysLeft <= (int)timeframe).ToList(),
+            Timeframe.Week => cutters.Where(c => c.DaysLeft <= (int)timeframe).ToList(),
+            _ => cutters
+        };
     }
 
     public void CreateOrUpdate(CutterEditDto cutterDto)

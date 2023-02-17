@@ -59,7 +59,7 @@ public class CreateOrUpdateCutterViewModel : BaseViewModel
         CanExecuteFunc = () => Cutter is not null,
         CommandAction = () =>
         {
-            var validationErrors = _userInputService.GetInvalidCutterInputs(Cutter);
+            var validationErrors = _userInputService.GetCutterValidationErrors(Cutter);
             if (validationErrors.Count > 0)
             {
                 var error = validationErrors.First();

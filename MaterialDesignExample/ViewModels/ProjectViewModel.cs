@@ -17,6 +17,10 @@ using Visibility = SealWatch.Code.Enums.Visibility;
 
 namespace SealWatch.Wpf.ViewModels;
 
+/// <summary>
+/// Acts as an overview for all projects and cutters.
+/// Offers functionality for reading details 
+/// </summary>
 public class ProjectViewModel : BaseViewModel
 {
     private readonly IProjectAccessLayer _projectAccessLayer;

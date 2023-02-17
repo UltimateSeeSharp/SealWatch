@@ -2,11 +2,18 @@
 using SealWatch.Wpf.Config;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Views;
+using SealWatch.Wpf.Views.New;
 using System;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SealWatch.Wpf.ViewModels;
 
+/// <summary>
+/// Acts as an envelope for all Views(UserControls)
+/// All UserControls get managed and loaded here
+/// </summary>
 public class DashboardWindowViewModel : BaseViewModel
 {
     private readonly ProjectViewModel _projectsViewModel;
@@ -25,18 +32,23 @@ public class DashboardWindowViewModel : BaseViewModel
         _calendarPlanerViewModel = calendarPlanerViewModel;
         _appSettings = appSettings;
 
-        Projects = new ProjectsView(_projectsViewModel);
-        Analyse = new AnalyticView(_analyticViewModel);
-        AnalyseOld = new CalendarPlanerView(_calendarPlanerViewModel);
+        ProjectsView = new ProjectsView(_projectsViewModel);
+        AnalyseView = new Views.New.AnalyticView(_analyticViewModel);
+        CalendarView = new CalendarPlanerView(_calendarPlanerViewModel);
     }
 
-    public UserControl Projects { get; set; }
+    public UserControl ProjectsView { get; set; }
 
-    public UserControl Analyse { get; set; }
+    public UserControl AnalyseView { get; set; }
     
-    public UserControl AnalyseOld { get; set; }
+    public UserControl CalendarView { get; set; }
 
     public string AppNameAndVersion => "Seal Watch" + " " + _appSettings.AppVersion;
 
     public string CurrentUser => Environment.UserName;
+
+    public ICommand CreaditCommand => new DelegateCommand()
+    {
+        CommandAction = () => MessageBox.Show("https://www.flaticon.com/de/autoren/freepik", "Icon credit")
+    };
 }

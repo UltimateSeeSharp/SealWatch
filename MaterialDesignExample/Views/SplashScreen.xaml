@@ -45,7 +45,7 @@
                              Height="6"
                              Margin="100,100,100,0"/>
 
-                <Label Content="Überprüfe Dichtungen ..."
+                <Label Content="Überprüfe Dichtungen..."
                        Margin="0,350,0,0"
                        FontSize="17"
                        Foreground="White"

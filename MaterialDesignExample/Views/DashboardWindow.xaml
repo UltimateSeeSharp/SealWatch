@@ -24,6 +24,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="10"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
@@ -38,13 +39,19 @@
                    FontSize="15"
                    Style="{StaticResource Label_LiebherrText}"/>
 
-            <Label Grid.Column="4"
+            <Button Grid.Column="4"
+                    Content="Credit"
+                    FontSize="15" FontWeight="Light"
+                    Background="Transparent" BorderThickness="0"
+                    Command="{Binding CreaditCommand}"/>
+
+            <Label Grid.Column="5"
                    Content="Benutzer:"
                    Margin="0,12,0,0"
                    FontSize="15"
                    Style="{StaticResource Label_LiebherrTitle}"/>
 
-            <Label Grid.Column="6"
+            <Label Grid.Column="7"
                    Content="{Binding CurrentUser, UpdateSourceTrigger=PropertyChanged}"
                    Margin="0,12,15,0"
                    FontSize="15"
@@ -66,7 +73,7 @@
                         <TextBlock Text="Projekte" Style="{StaticResource TextBlock_LiebherrText}"/>
                     </StackPanel>
                 </TabItem.Header>
-                <UserControl Content="{Binding Projects}"/>
+                <UserControl Content="{Binding ProjectsView}"/>
             </TabItem>
 
             <TabItem Width="80" Margin="10,10,0,0">
@@ -80,7 +87,7 @@
                         <TextBlock Text="Analyse" Style="{StaticResource TextBlock_LiebherrText}"/>
                     </StackPanel>
                 </TabItem.Header>
-                <UserControl Content="{Binding Analyse}"/>
+                <UserControl Content="{Binding AnalyseView}"/>
             </TabItem>
 
             <TabItem Width="80" Margin="10,10,0,0">
@@ -94,7 +101,7 @@
                         <TextBlock Text="Kalendar" Style="{StaticResource TextBlock_LiebherrText}"/>
                     </StackPanel>
                 </TabItem.Header>
-                <UserControl Content="{Binding AnalyseOld}"/>
+                <UserControl Content="{Binding CalendarView}"/>
             </TabItem>
             
         </TabControl>

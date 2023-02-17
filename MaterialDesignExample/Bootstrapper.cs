@@ -5,7 +5,9 @@ using SealWatch.Code;
 using SealWatch.Code.CutterLayer;
 using SealWatch.Code.CutterLayer.Interfaces;
 using SealWatch.Code.HistoryLayer;
+using SealWatch.Code.HistoryLayer.Interfaces;
 using SealWatch.Code.ProjectLayer;
+using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Code.Services;
 using SealWatch.Data.Database;
 using SealWatch.Wpf.Config;
@@ -33,35 +35,16 @@ public static class Bootstrapper
 
         _container = builder.Build();
 
-        Mock();
-    }
+        var appSettings = _container.Resolve<AppSettings>();
 
-    public static void Stop()
-    {
-        _container?.Dispose();
+        if (appSettings.ShouldMock)
+            MockHelper.Mock(SealWatchDbContext.NewContext());
     }
 
     public static T Resolve<T>() => _container!.Resolve<T>();
 
-
-    public static ContainerBuilder ConfigureLogging(this ContainerBuilder builder)
-    {
-        Log.Logger = new LoggerConfiguration()
-            .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
-            .WriteTo.Console()
-            .CreateLogger();
-
-        builder.Register(_ => new LoggerFactory(new ILoggerProvider[] { new SerilogLoggerProvider() }))
-            .As<ILoggerFactory>()
-            .SingleInstance();
-        builder.RegisterGeneric(typeof(Logger<>))
-            .As(typeof(ILogger<>));
-
-        return builder;
-    }
-
     private static ContainerBuilder Setup(this ContainerBuilder builder)
-    { 
+    {
         //  AppSettings
 
         var configBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false);
@@ -79,28 +62,24 @@ public static class Bootstrapper
 
         //  Services
 
-        builder.RegisterType<AnalyseService>().SingleInstance();
-
-        builder.RegisterType<UserInputService>().AsImplementedInterfaces();
-        builder.RegisterType<DesignService>().AsImplementedInterfaces();
-        builder.RegisterType<GraphsService>().AsImplementedInterfaces();
+        builder.RegisterType<UserInputService>().As<IUserInputService>();
+        builder.RegisterType<DesignService>().As<IDesignService>();
+        builder.RegisterType<GraphsService>().As<IGraphsService>();
         builder.RegisterType<CalendarService>().As<ICalendarService>();
 
-        builder.RegisterType<ProjectAccessLayer>().AsImplementedInterfaces();
-        builder.RegisterType<HistoryAccessLayer>().AsImplementedInterfaces();
+        builder.RegisterType<ProjectAccessLayer>().As<IProjectAccessLayer>();
+        builder.RegisterType<HistoryAccessLayer>().As<IHistoryAccessLayer>();
         builder.Register<ICutterAccessLayer>(x => new CutterAccessLayer(appSettings.Accuracy));
 
         builder.RegisterType<Random>().SingleInstance();
 
-        //  Windows
+        //  Views & ViewModels
 
         builder.RegisterType<DashboardWindowViewModel>().SingleInstance();
         builder.RegisterType<DashboardWindow>().SingleInstance();
 
         builder.RegisterType<SplashScreenViewModel>().SingleInstance();
         builder.RegisterType<SplashScreen>().SingleInstance();
-
-        //  UserControls
 
         builder.RegisterType<ProjectViewModel>().SingleInstance();
         builder.RegisterType<ProjectsView>().SingleInstance();
@@ -110,8 +89,6 @@ public static class Bootstrapper
 
         builder.RegisterType<CalendarPlanerViewModel>().SingleInstance();
         builder.RegisterType<CalendarPlanerView>().SingleInstance();
-
-        //  Dialogs
 
         builder.RegisterType<CreateOrUpdateCutterViewModel>().SingleInstance();
         builder.RegisterType<CreateOrUpdateCutterView>().SingleInstance();
@@ -125,5 +102,25 @@ public static class Bootstrapper
         return builder;
     }
 
-    private static void Mock() => MockHelper.Mock(SealWatchDbContext.NewContext());
+    public static ContainerBuilder ConfigureLogging(this ContainerBuilder builder)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+            .WriteTo.Console()
+            .CreateLogger();
+
+        builder.Register(_ => new LoggerFactory(new ILoggerProvider[] { new SerilogLoggerProvider() }))
+            .As<ILoggerFactory>()
+            .SingleInstance();
+        builder.RegisterGeneric(typeof(Logger<>))
+            .As(typeof(ILogger<>));
+
+        return builder;
+    }
+
+    public static void Stop()
+    {
+        Log.CloseAndFlush();
+        _container?.Dispose();
+    }
 }

@@ -3,25 +3,29 @@ using SealWatch.Code.CutterLayer.Interfaces;
 using SealWatch.Code.Services;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Service.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Controls;
 
 namespace SealWatch.Wpf.ViewModels;
 
+/// <summary>
+/// Displays calendars to show all future maintenance
+/// dates of a specific cutter that can be selected
+/// </summary>
 public class CalendarPlanerViewModel : BaseViewModel
 {
     private readonly ICutterAccessLayer _cutterAccessLayer;
     private readonly ICalendarService _sealMonitorService;
-    private readonly AnalyseService _analyseService;
     private List<Calendar>? _calendars;
 
-    public CalendarPlanerViewModel(ICutterAccessLayer cutterAccessLayer, ICalendarService sealMonitorService, AnalyseService analyseService)
+    public CalendarPlanerViewModel(ICutterAccessLayer cutterAccessLayer, ICalendarService calendarService)
     {
         _cutterAccessLayer = cutterAccessLayer;
-        _sealMonitorService = sealMonitorService;
-        _analyseService = analyseService;
+        _sealMonitorService = calendarService;
     }
 
     public void Loaded(List<Calendar> calendars)
@@ -47,7 +51,7 @@ public class CalendarPlanerViewModel : BaseViewModel
             if (SelectedCutter is null)
                 return;
 
-            var failureDates = _analyseService.GetFailureDates(SelectedCutter);
+            var failureDates = GetFailureDates(SelectedCutter);
             _sealMonitorService.DrawSelected(_calendars!, failureDates);
         }
     }
@@ -81,5 +85,47 @@ public class CalendarPlanerViewModel : BaseViewModel
         Cutters = new(_cutterAccessLayer.GetAnalysedCutters(search: _cutterSearchText));
         NoCuttersAvailable = Cutters.Count > 0 ? false : true;
         OnPropertyChanged(nameof(Cutters));
+    }
+
+    public List<DateTime> GetFailureDates(AnalysedCutterDto cutter)
+    {
+        List<DateTime> failureDates = new();
+        DateTime endDate = cutter.MillingStart.AddMonths((int)(cutter.MillingDuration_y * 12));
+
+        do
+        {
+            var startDate = failureDates.Count == 0 ? cutter.MillingStart : failureDates.Last();
+            var failureDate = CalcFailureDate(startDate, cutter.WorkDays, cutter.MillingPerDay_h, cutter.LifeSpan_h);
+            failureDates.Add(failureDate);
+        }
+        while (failureDates.Last() < endDate);
+
+        var invalidDates = failureDates.Where(x => x == DateTime.MinValue || x == DateTime.MaxValue);
+        if (invalidDates.Any())
+            Log.Error("AnalyseService - GetFailureDates | Date(s) is MinValue/MaxValue");
+
+        return failureDates;
+    }
+
+    public DateTime CalcFailureDate(DateTime millingStart, int workDays, double millingPerDay, double lifespan)
+    {
+        DateTime start = millingStart;
+
+        while (lifespan > 0 && lifespan > millingPerDay * workDays)
+        {
+            lifespan -= (millingPerDay * workDays);
+            start = start.AddDays(7);
+        }
+
+        if (lifespan is not 0)
+        {
+            var left = lifespan / millingPerDay;
+            start = start.AddDays(left);
+        }
+
+        if (start == DateTime.MinValue || start == DateTime.MaxValue)
+            Log.Error("AnalyseService - ClacFailureDate | Date is MinValue/MaxValue");
+
+        return start;
     }
 }

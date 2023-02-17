@@ -2,7 +2,14 @@
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Views;
 using System;
+using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Windows.Threading;
+using Newtonsoft.Json;
+using System.Text;
+using System.Windows.Media.Animation;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SealWatch.Wpf.ViewModels;
 

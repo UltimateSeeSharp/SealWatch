@@ -6,7 +6,7 @@ namespace SealWatch.Wpf.Service.Interfaces;
 
 public interface IUserInputService
 {
-    List<ValidationError> GetInvalidCutterInputs(CutterEditDto cutter);
-    List<ValidationError> GetInvalidProjectInputs(ProjectEditDto project);
+    List<ValidationError> GetCutterValidationErrors(CutterEditDto cutter);
+    List<ValidationError> GetProjectValidationErrors(ProjectEditDto project);
     bool UserConfirmPopUp(string tool);
 }

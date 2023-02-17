@@ -14,12 +14,12 @@ namespace SealWatch.Wpf.Service;
 /// </summary>
 public class UserInputService : IUserInputService
 {
-    public bool UserConfirmPopUp(string tool)
+    public bool UserConfirmPopUp(string title)
     {
-        return MessageBox.Show("Sind Sie sicher?", tool, MessageBoxButton.YesNoCancel) is MessageBoxResult.Yes;
+        return MessageBox.Show("Sind Sie sicher?", title, MessageBoxButton.YesNoCancel) is MessageBoxResult.Yes;
     }
 
-    public List<ValidationError> GetInvalidCutterInputs(CutterEditDto cutter)
+    public List<ValidationError> GetCutterValidationErrors(CutterEditDto cutter)
     {
         List<ValidationError> errors = new();
         errors.Add(new ValidationError("Seriennummer", IsSerialNumber(cutter.SerialNumber)));
@@ -34,7 +34,7 @@ public class UserInputService : IUserInputService
         return occuredErrors;
     }
 
-    public List<ValidationError> GetInvalidProjectInputs(ProjectEditDto project)
+    public List<ValidationError> GetProjectValidationErrors(ProjectEditDto project)
     {
         List<ValidationError> errors = new();
         errors.Add(new ValidationError("Standort", IsTextNoWhite(project.Location)));
@@ -74,7 +74,7 @@ public class UserInputService : IUserInputService
             return "Seriennummer hat nicht das korrekte Format";
     }
 
-    private string IsNubmer(string input)
+    private string IsNumber(string input)
     {
         if (Regex.IsMatch(input, @"^\d$"))
             return string.Empty;
@@ -104,4 +104,4 @@ public class UserInputService : IUserInputService
     }
 }
 
-public record class ValidationError(string PropertyName, string ErrorDescription);
+public record ValidationError(string PropertyName, string ErrorDescription);

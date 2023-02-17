@@ -1,0 +1,137 @@
+﻿<UserControl x:Class="SealWatch.Wpf.Views.New.AnalyticView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             xmlns:converter="clr-namespace:SealWatch.Wpf.Converter"
+             xmlns:local="clr-namespace:SealWatch.Wpf.Views"
+             mc:Ignorable="d" 
+             Loaded="UserControl_Loaded"
+             Background="Transparent"
+             d:DesignHeight="980" d:DesignWidth="1600">
+
+    <UserControl.Resources>
+        <Style x:Key="ChartTitleLabel" BasedOn="{StaticResource Label_LiebherrTitle}" TargetType="Label">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+
+        <converter:OrderedNotOrderedConverter x:Key="OrderedNotOrderedConverter"/>
+        <converter:OrderedNotOrderedConverterForeground x:Key="OrderedNotOrderedConverterForeground"/>
+        <converter:CutterAlreadyFailedForegroundConverter x:Key="CutterAlreadyFailedForegroundConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="8*"/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Margin="20 20 10 20" Padding="20"
+                Style="{StaticResource SmoothBorder}">
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBox Text="{Binding CutterSearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource SearchBox}"/>
+
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Content="Woche" Style="{StaticResource FilterButton}" Command="{Binding FilterCommand}" CommandParameter="7"/>
+                    <Button Content="Monat" Style="{StaticResource FilterButton}" Command="{Binding FilterCommand}" CommandParameter="31"/>
+                    <Button Content="Jahr" Style="{StaticResource FilterButton}" Command="{Binding FilterCommand}" CommandParameter="360"/>
+                </StackPanel>
+
+                <DataGrid Grid.Row="1"
+                          MouseDoubleClick="DataGrid_MouseDoubleClick"
+                          ItemsSource="{Binding Cutters, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedItem="{Binding SelectedCutter, UpdateSourceTrigger=PropertyChanged}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderDefault}"
+                          Style="{StaticResource DataGridDefault}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="SN" Binding="{Binding SerialNumber}" Width="85"/>
+                        <DataGridTextColumn Header="Standort" Binding="{Binding Location}" Width="20*" FontWeight="Medium"/>
+                        <DataGridTextColumn Header="Bodenart" Binding="{Binding SoilType}" Width="20*" Foreground="#505050"/>
+                        <DataGridTextColumn Header="Abnutzung" Binding="{Binding Durability, StringFormat={}{0} %}" Width="15*" Foreground="#505050"/>
+                        <DataGridTextColumn Header="Tage" Binding="{Binding DaysLeft}" Width="10*" Foreground="#505050"/>
+                        <DataGridTextColumn Header="Frässtart" Binding="{Binding MillingStart, StringFormat=dd-MM-yyy}" Width="17*" Foreground="#505050"/>
+                        <DataGridTemplateColumn Header="Wartung" Width="17*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding MillingStop, StringFormat=dd-MM-yyy}"
+                                               Foreground="{Binding MillingStop, Converter={StaticResource CutterAlreadyFailedForegroundConverter}}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Status" Width="16*" Binding="{Binding SealOrdered, Converter={StaticResource OrderedNotOrderedConverter}}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{Binding SealOrdered, Converter={StaticResource OrderedNotOrderedConverterForeground}}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Button Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Command="{Binding OrderCommand}" CommandParameter="Delete"
+                        Content="{materialDesign:PackIcon Kind=PackageVariantClosed, Size=30}"
+                        Style="{StaticResource IconButton}"/>
+
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Margin="10 20 20 10" Style="{StaticResource SmoothBorder}">
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="Analyse - " Style="{StaticResource TitleYellow20px}"/>
+                        <TextBlock Text="Bestellstatus" Style="{StaticResource Subtitle20px}"/>
+                    </StackPanel>
+                    
+                    <lvc:CartesianChart Grid.Row="1" Margin="8" Content="{Binding OrderedChart}"/>
+
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Margin="10 10 20 20" Style="{StaticResource SmoothBorder}">
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="Analyse - " Style="{StaticResource TitleYellow20px}"/>
+                        <TextBlock Text="Fräsem vor Ort" Style="{StaticResource Subtitle20px}"/>
+                    </StackPanel>
+
+                    <lvc:CartesianChart Grid.Row="1" Margin="8" Content="{Binding LocationChart}"/>
+
+                </Grid>
+            </Border>
+
+        </Grid>
+
+    </Grid>
+</UserControl>

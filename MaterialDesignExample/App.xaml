@@ -27,6 +27,17 @@
                 <Setter Property="materialDesign:ShadowAssist.ShadowDepth" Value="Depth0"/>
                 <Setter Property="FontFamily" Value="/Assets/Fonts/#Liebherr Title Light"/>
             </Style>
+
+            <Style x:Key="FilterButton" BasedOn="{StaticResource SubmitButton}" TargetType="Button">
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="Margin" Value="0,15,20,0"/>
+            </Style>
+
+            <Style x:Key="IconButton" BasedOn="{StaticResource MaterialDesignFloatingActionMiniButton}" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+            </Style>
+
             <Style x:Key="NavigationButtons"
                    BasedOn="{StaticResource MaterialDesignFloatingActionSecondaryDarkButton}" 
                    TargetType="{x:Type Button}">
@@ -34,6 +45,7 @@
                 <Setter Property="Margin" Value="0,15,0,0" />
                 <Setter Property="Background" Value="Transparent"/>
             </Style>
+            
             <Style x:Key="ToolboxButtons"
                    BasedOn="{StaticResource MaterialDesignFloatingActionSecondaryDarkButton}" 
                    TargetType="{x:Type Button}">
@@ -41,6 +53,7 @@
                 <Setter Property="Margin" Value="15,0,0,0" />
                 <Setter Property="Background" Value="Transparent"/>
             </Style>
+
             <Style x:Key="ToolBarButtonDefault" BasedOn="{StaticResource MaterialDesignFloatingActionMiniButton}" TargetType="Button">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderBrush" Value="Transparent"/>
@@ -59,6 +72,30 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+
+            <Style x:Key="SearchBox" TargetType="TextBox" BasedOn="{StaticResource TextBoxDefault}">
+                <Setter Property="Width" Value="200" />
+                <Setter Property="Height" Value="30" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="materialDesign:HintAssist.Hint" Value="Suche ..." />
+            </Style>
+
+            <Style x:Key="TitleYellow20px" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource LwnYellow}" />
+                <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Bold"/>
+                <Setter Property="TextElement.FontSize" Value="20"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+            </Style>
+
+            <Style x:Key="Subtitle20px" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="Black" />
+                <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Medium"/>
+                <Setter Property="TextElement.FontSize" Value="20"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+            </Style>
+
+
+
 
             <Style x:Key="TextBlock_LiebherrText" TargetType="TextBlock">
                 <Setter Property="TextElement.FontFamily" Value="/Assets/Fonts/#Liebherr Text Light"/>
@@ -101,7 +138,7 @@
             <Style x:Key="DataGridDefault" BasedOn="{StaticResource MaterialDesignDataGrid}" TargetType="{x:Type DataGrid}">
                 <Setter Property="IsReadOnly" Value="True"/>
                 <Setter Property="Padding" Value="10,10,15,10"/>
-                <Setter Property="Background" Value="White"/>
+                <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="Foreground" Value="Black"/>
                 <Setter Property="SelectionUnit" Value="FullRow"/>
                 <Setter Property="SelectionMode" Value="Single"/>
@@ -130,10 +167,11 @@
                         </Style>
                     </Setter.Value>
                 </Setter>
+                <Setter Property="ColumnHeaderStyle" Value="{StaticResource MaterialDesignDataGridColumnHeader}" />
             </Style>
 
             <Style x:Key="DataGridColumnHeaderDefault" TargetType="DataGridColumnHeader">
-                <Setter Property="Background" Value="White"/>
+                <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="Foreground" Value="Gray"/>
                 <Setter Property="Padding" Value="19,10,2,10"></Setter>
                 <Setter Property="FontSize" Value="16"></Setter>
@@ -160,6 +198,13 @@
             <Style x:Key="InnerBorder" TargetType="Border">
                 <Setter Property="Margin" Value="10" />
                 <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="BorderThickness" Value="2" />
+                <Setter Property="BorderBrush" Value="{StaticResource LwnLightGray}"/>
+            </Style>
+
+            <Style x:Key="SmoothBorder" TargetType="Border">
+                <Setter Property="Padding" Value="20" />
+                <Setter Property="CornerRadius" Value="10"/>
                 <Setter Property="BorderThickness" Value="2" />
                 <Setter Property="BorderBrush" Value="{StaticResource LwnLightGray}"/>
             </Style>

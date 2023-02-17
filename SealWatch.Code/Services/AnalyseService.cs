@@ -3,26 +3,29 @@ using Serilog;
 
 namespace SealWatch.Code.Services;
 
-public class AnalyseService
+public class AnalyseService : IAnalyseService
 {
     /// <summary>
     /// Calculates durability of a cutter on a basis of 0-100
     /// 0 if unused / 100+ if used over maintenance date
     /// </summary>
-    /// <param name="start">Day at which the cutter starts milling</param>
-    /// <param name="stop">Day at which the cutter stops milling - new seal is needed</param>
+    /// <param name="millingStart">Day at which the cutter starts milling</param>
+    /// <param name="millingStop">Day at which the cutter stops milling - new seal is needed</param>
     /// <param name="accuracy">Accuracy of decimal places</param>
     /// <returns></returns>
-    public double CalcDurability(DateTime start, DateTime stop, DateTime currentDate, int accuracy = 0)
+    public double CalcDurability(DateTime millingStart, DateTime millingStop, DateTime now, int accuracy = 0)
     {
-        if (start >= currentDate)
+        if (millingStart >= now)
             return 0;
 
-        var totalDays1Perc = (stop - start).TotalDays / 100;
-        var passedDays = (currentDate - start).TotalDays;
+        var totalDays1Perc = (millingStop - millingStart).TotalDays / 100;
+        var passedDays = (now - millingStart).TotalDays;
 
         var pace = passedDays / totalDays1Perc;
         var result = Math.Round(pace, accuracy);
+
+        if (result < 0)
+            Log.Error("AnalyseService - CalcDurability | Durability was negative. Expected 0-100+");
 
         return result;
     }
@@ -34,10 +37,12 @@ public class AnalyseService
     /// <param name="millingStop">Day at which the cutter stops milling - new seal is needed</param>
     /// <param name="accuracy">Accuracy of decimal places</param>
     /// <returns></returns>
-    public double CalcRelativeTimeInDays(DateTime millingStop, DateTime currentDate, int accuracy = 0)
+    public double CalcRelativeTimeInDays(DateTime millingStop, DateTime now, int accuracy = 0)
     {
-        var daysToStop = (millingStop - currentDate).TotalDays;
-        return Math.Round(daysToStop, accuracy);
+        var daysToStop = (millingStop - now).TotalDays;
+        var result = Math.Round(daysToStop, accuracy);
+
+        return result;
     }
 
     /// <summary>
@@ -65,6 +70,9 @@ public class AnalyseService
             start = start.AddDays(left);
         }
 
+        if (start == DateTime.MinValue || start == DateTime.MaxValue)
+            Log.Error("AnalyseService - ClacFailureDate | Date is MinValue/MaxValue");
+
         return start;
     }
 
@@ -85,6 +93,10 @@ public class AnalyseService
             failureDates.Add(failureDate);
         }
         while (failureDates.Last() < endDate);
+
+        var invalidDates = failureDates.Where(x => x == DateTime.MinValue || x == DateTime.MaxValue);
+        if (invalidDates.Any())
+            Log.Error("AnalyseService - GetFailureDates | Date(s) is MinValue/MaxValue");
 
         return failureDates;
     }

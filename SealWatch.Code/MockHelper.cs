@@ -14,7 +14,7 @@ public static class MockHelper
     {
         var random = new Random();
 
-        List<Data.Model.Project> projects = Mocker.GenerateProjects(20).Select(x => new Data.Model.Project()
+        List<Data.Model.Project> projects = Mocker.GenerateProjects(8).Select(x => new Data.Model.Project()
         {
             Blades = x.Blades,
             SlitDepth_m = x.SlitDepth_m,

@@ -1,6 +1,7 @@
 ﻿using LiveCharts.Wpf;
 using SealWatch.Code.CutterLayer;
 using SealWatch.Code.CutterLayer.Interfaces;
+using SealWatch.Code.Enums;
 using SealWatch.Wpf.Extensions;
 using SealWatch.Wpf.Service.Interfaces;
 using System;
@@ -11,6 +12,10 @@ using System.Windows.Input;
 
 namespace SealWatch.Wpf.ViewModels;
 
+/// <summary>
+/// Offers graphs and information about the cutter
+/// location and future maintenance dates
+/// </summary>
 public class AnalyticViewModel : BaseViewModel
 {
     private readonly ICutterAccessLayer _cutterAccessLayer;
@@ -19,7 +24,7 @@ public class AnalyticViewModel : BaseViewModel
     private readonly IGraphsService _graphsService;
 
     private List<AnalysedCutterDto> _cutters = new();
-    private int _daysLeftFilter = 360;
+    private Timeframe _timeframe = Timeframe.Year;
 
     public AnalyticViewModel(
         ICutterAccessLayer cutterAccessLayer, 
@@ -52,7 +57,7 @@ public class AnalyticViewModel : BaseViewModel
     {
         ObjectCommandAction = (x) =>
         {
-            _daysLeftFilter = Convert.ToInt32(x);
+            _timeframe = (Timeframe)Enum.Parse(typeof(Timeframe), x.ToString()!);
             RefreshCutters();
             RefreshGraphs();
         }
@@ -130,7 +135,7 @@ public class AnalyticViewModel : BaseViewModel
 
     private void RefreshCutters()
     {
-        Cutters = new(_cutterAccessLayer.GetAnalysedCutters(search: _cutterSearchText, daysLeftFilter: _daysLeftFilter));
+        Cutters = new(_cutterAccessLayer.GetAnalysedCutters(search: _cutterSearchText, timeframe: _timeframe));
         NoCuttersAvailable = Cutters.Count <= 0 ? true : false;
 
         OnPropertyChanged(nameof(Cutters));
@@ -142,8 +147,8 @@ public class AnalyticViewModel : BaseViewModel
         if (Cutters is null || Cutters.Count is 0) 
             return;
 
-        OrderedChart = _graphsService.GetOrderedChart(Cutters.ToList(), _daysLeftFilter);
-        LocationChart = _graphsService.GetLocationChart(Cutters.ToList(), _daysLeftFilter);
+        OrderedChart = _graphsService.GetOrderedSealsChart(Cutters.ToList(), _timeframe);
+        LocationChart = _graphsService.GetCutterLocationChart(Cutters.ToList());
     }
 
     public void SelectedCutterChanged(AnalysedCutterDto cutter) => SelectedCutter = cutter;

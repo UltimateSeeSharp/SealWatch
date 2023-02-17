@@ -1,7 +1,10 @@
 ﻿using LiveCharts;
 using LiveCharts.Wpf;
 using SealWatch.Code.CutterLayer;
+using SealWatch.Code.Enums;
+using SealWatch.Wpf.Config;
 using SealWatch.Wpf.Service.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,53 +12,69 @@ using System.Windows.Media;
 
 namespace SealWatch.Wpf.Service;
 
+
 /// <summary>
 /// Generates graphs for AnalyticView
 /// </summary>
 public class GraphsService : IGraphsService
 {
     private readonly IDesignService _coorporateDesignService;
-    private int _dayFilter = 7;
-    private int _maxLocations = 7;
+    private readonly AppSettings _appSettings;
 
-    public GraphsService(IDesignService coorporateDesignService)
+    public GraphsService(IDesignService coorporateDesignService, AppSettings appSettings)
     {
         _coorporateDesignService = coorporateDesignService;
+        _appSettings = appSettings;
     }
 
-    public CartesianChart GetOrderedChart(List<AnalysedCutterDto> cutters, int dayFilter = 7)
+    public CartesianChart GetOrderedSealsChart(List<AnalysedCutterDto> cutters, Timeframe timeframe = Timeframe.Week)
     {
-        _dayFilter = dayFilter;
+        SeriesCollection? series = GetFailureDatesCollection(cutters, timeframe);
+        if (series is null)
+            Log.Error("GraphsService - GetOrderedSealsChart | SeriesCollection of chart was null");
 
         return new()
         {
-            Series = GetFailuresCollection(cutters),
-            AxisX = GetFailuresAxis(),
+            Series = series,
+            AxisX = GetFailureDatesAxis(timeframe),
             AxisY = GetYAxis()
         };
     }
 
-    public CartesianChart GetLocationChart(List<AnalysedCutterDto> cutters,  int dayFilter = 7)
+    public CartesianChart GetCutterLocationChart(List<AnalysedCutterDto> cutters)
     {
-        _dayFilter = dayFilter;
+        SeriesCollection? series = GetCutterLocationCollection(cutters);
+        if (series is null)
+            Log.Error("GraphsService - GetCutterLocationChart | SeriesCollection of chart was null");
 
         return new()
         {
-            Series = GetLocationCollection(cutters),
-            AxisX = GetLocationAxis(cutters),
+            Series = GetCutterLocationCollection(cutters),
+            AxisX = GetCutterLocationAxis(cutters),
             AxisY = GetYAxis()
         };
     }
 
-    private SeriesCollection GetFailuresCollection(List<AnalysedCutterDto> cutters)
+    private SeriesCollection? GetFailureDatesCollection(List<AnalysedCutterDto> cutters, Timeframe timeframe)
     {
-        var cuttersOrdered = cutters.Where(x => x.SealOrdered).ToList();
+        if (cutters is null)
+        {
+            Log.Error("GraphsService - GetFailureDatesCollection | Cutters were null");
+            return null;
+        }
+        if (cutters.Count is 0)
+        {
+            Log.Error("GraphsService - GetFailureDatesCollection | Cutters had count 0");
+            return null;
+        }
 
-        var seriesCollection = new SeriesCollection()
+        var orderedCutters = cutters.Where(x => x.SealOrdered).ToList();
+
+        SeriesCollection collection = new()
         {
             new LineSeries()
             {
-                Title = "Nicht bestellt",
+                Title = _appSettings.NotOrderedText,
                 LineSmoothness = 0.5,
                 Fill = Brushes.Transparent,
                 Stroke = Brushes.LightGray,
@@ -63,7 +82,7 @@ public class GraphsService : IGraphsService
             },
             new LineSeries()
             {
-                Title = "Bestellt",
+                Title = _appSettings.OrderedText,
                 LineSmoothness = 0.5,
                 Fill = _coorporateDesignService.colGold60,
                 Stroke = Brushes.Gold,
@@ -71,69 +90,56 @@ public class GraphsService : IGraphsService
             }
         };
 
-        if (_dayFilter is 7)
+        if (timeframe is Timeframe.Week)
         {
-            for (int x = 0; x < 7; x++)
+            for (int x = 0; x <= 7; x++)
             {
-                var cutterCount = cutters.Count(cutter => cutter.MillingStop.Date == DateTime.Now.AddDays(x).Date);
-                seriesCollection[0].Values.Add(cutterCount);
+                collection[0].Values.Add(
+                    cutters.Count(c => c.MillingStop.Date == DateTime.Now.AddDays(x).Date));
             }
-
-            for (int x = 0; x < 7; x++)
+            for (int x = 0; x <= 7; x++)
             {
-                var cutterCount = cuttersOrdered.Count(cutter => cutter.MillingStop.Date == DateTime.Now.AddDays(x).Date);
-                seriesCollection[1].Values.Add(cutterCount);
+                collection[1].Values.Add(
+                    orderedCutters.Count(c => c.MillingStop.Date == DateTime.Now.AddDays(x).Date));
             }
         }
-        else if (_dayFilter is 31)
+        else if (timeframe is Timeframe.Month)
         {
-            var weekOne = new List<int>() { 1, 2, 3, 4, 5, 6, 7 };
-            var weekTwo = new List<int>() { 8, 9, 10, 11, 12, 13, 14 };
-            var weekThree = new List<int>() { 15, 16, 17, 18, 19, 20, 21 };
-            var weekFour = new List<int>() { 22, 23, 24, 25, 26, 27, 28 };
-
-            var cutterThisYearMonth = cutters.Where(cutter => cutter.MillingStop.Year == DateTime.Now.Year && cutter.MillingStop.Month == DateTime.Now.Month).ToList();
-
-            if (cutterThisYearMonth is not null)
+            for (int x = 0; x < 4; x++)
             {
-                seriesCollection[0].Values = new ChartValues<int>()
-                {
-                    cutterThisYearMonth.Count(x => weekOne.Contains(x.MillingStop.Day)),
-                    cutterThisYearMonth.Count(x => weekTwo.Contains(x.MillingStop.Day)),
-                    cutterThisYearMonth.Count(x => weekThree.Contains(x.MillingStop.Day)),
-                    cutterThisYearMonth.Count(x => weekFour.Contains(x.MillingStop.Day)),
-                };
-
-                seriesCollection[1].Values = new ChartValues<int>()
-                {
-                    cutterThisYearMonth.Count(x => x.SealOrdered && weekOne.Contains(x.MillingStop.Day)),
-                    cutterThisYearMonth.Count(x => x.SealOrdered && weekTwo.Contains(x.MillingStop.Day)),
-                    cutterThisYearMonth.Count(x => x.SealOrdered && weekThree.Contains(x.MillingStop.Day)),
-                    cutterThisYearMonth.Count(x => x.SealOrdered && weekFour.Contains(x.MillingStop.Day)),
-                };
+                collection[0].Values.Add(
+                    cutters.Count(c => c.MillingStop.Date >= DateTime.Now.AddDays(7 * x).Date
+                                    && c.MillingStop.Date <= DateTime.Now.AddDays(7 * (x + 1)).Date));
             }
+            for (int x = 0; x < 4; x++)
+            {
+                collection[1].Values.Add(
+                    orderedCutters.Count(c => c.MillingStop.Date >= DateTime.Now.AddDays(7 * x).Date
+                                           && c.MillingStop.Date <= DateTime.Now.AddDays(7 * (x + 1)).Date));
+            }
+
+            return collection;
         }
-        else if (_dayFilter is 360)
+        else if (timeframe is Timeframe.Year)
         {
             for (int x = 0; x < 12; x++)
             {
-                seriesCollection[0].Values.Add(cutters.Count(item => item.MillingStop.Month == DateTime.Now.AddMonths(x).Month
-                                                                  && item.MillingStop.Year == DateTime.Now.AddMonths(x).Year));
+                collection[0].Values.Add(cutters.Count(c => c.MillingStop.Month == DateTime.Now.AddMonths(x).Month
+                                                         && c.MillingStop.Year == DateTime.Now.AddMonths(x).Year));
             }
-
             for (int x = 0; x < 12; x++)
             {
-                seriesCollection[1].Values.Add(cutters.Count(item => item.SealOrdered
-                                                                  && item.MillingStop.Month == DateTime.Now.AddMonths(x).Month
-                                                                  && item.MillingStop.Year == DateTime.Now.AddMonths(x).Year));
+                collection[1].Values.Add(cutters.Count(c => c.SealOrdered
+                                                         && c.MillingStop.Month == DateTime.Now.AddMonths(x).Month
+                                                         && c.MillingStop.Year == DateTime.Now.AddMonths(x).Year));
             }
         }
 
-        return seriesCollection;
+        return collection;
     }
-    private AxesCollection GetFailuresAxis()
+    private AxesCollection GetFailureDatesAxis(Timeframe timeframe)
     {
-        var axis = new Axis()
+        Axis axis = new()
         {
             Labels = new List<string>(),
             Foreground = Brushes.Black,
@@ -144,34 +150,39 @@ public class GraphsService : IGraphsService
             }
         };
 
-        if (_dayFilter is 7)
+        if (timeframe is Timeframe.Week)
         {
-            for (int x = 0; x < 7; x++)
-            {
-                axis.Labels.Add(DateTime.Now.AddDays(x).ToString("dd MMM"));
-            }
+            Enumerable.Range(0, 8).ToList().ForEach(x => axis.Labels.Add(DateTime.Now.AddDays(x).ToString("dd MMM")));
         }
-        else if (_dayFilter is 31)
+        else if (timeframe is Timeframe.Month)
         {
-            for (int x = 1; x < 5; x++)
-            {
-                axis.Labels.Add($"Woche {x}");
-            }
+            Enumerable.Range(0, 4).ToList().ForEach(x => axis.Labels.Add(
+                    DateTime.Now.AddDays(7 * x).Date.ToString("dd.MM") + 
+                    " - " + 
+                    DateTime.Now.AddDays(7 * (x + 1)).Date.ToString("dd.MM")));
         }
-        else if (_dayFilter is 360)
+        else if (timeframe is Timeframe.Year)
         {
-            for (int x = 0; x < 12; x++)
-            {
-                axis.Labels.Add(DateTime.Now.AddMonths(x).ToString("MMM"));
-            }
+            Enumerable.Range(0, 12).ToList().ForEach(x => axis.Labels.Add(DateTime.Now.AddMonths(x).ToString("MMM")));
         }
 
         return new AxesCollection() { axis };
     }
 
-    private SeriesCollection GetLocationCollection(List<AnalysedCutterDto> cutters)
+    private SeriesCollection? GetCutterLocationCollection(List<AnalysedCutterDto> cutters)
     {
-        var columnSeries = new ColumnSeries()
+        if (cutters is null)
+        {
+            Log.Error("GraphsService - GetCutterLocationCollection | Cutters were null");
+            return null;
+        }
+        if (cutters.Count is 0)
+        {
+            Log.Error("GraphsService - GetCutterLocationCollection | Cutters had count 0");
+            return null;
+        }
+
+        ColumnSeries columnSeries = new()
         {
             Title = "Standort",
             DataLabels = true,
@@ -179,10 +190,10 @@ public class GraphsService : IGraphsService
             Fill = _coorporateDesignService.colGold160,
         };
 
-        var locations = cutters.Select(x => x.Location).Distinct().ToList();
+        var locations = cutters.Select(x => x.Location).Distinct();
 
-        if (locations.Count > _maxLocations)
-            locations = locations.Take(_maxLocations).ToList();
+        if (locations.Count() > _appSettings.MaxGraphLocations)
+            locations = locations.Take(_appSettings.MaxGraphLocations);
 
         foreach (var location in locations)
         {
@@ -192,11 +203,16 @@ public class GraphsService : IGraphsService
 
         return new SeriesCollection { columnSeries };
     }
-    private AxesCollection GetLocationAxis(List<AnalysedCutterDto> cutters)
+    private AxesCollection GetCutterLocationAxis(List<AnalysedCutterDto> cutters)
     {
+        var locations = cutters.Select(x => x.Location).Distinct();
+
+        if (locations.Count() > _appSettings.MaxGraphLocations)
+            locations = locations.Take(_appSettings.MaxGraphLocations);
+
         var axis = new Axis()
         {
-            Labels = cutters.Select(x => x.Location).Distinct().ToArray(),
+            Labels = locations.ToArray(),
             Foreground = Brushes.Black,
             Separator = new()
             {
@@ -208,19 +224,16 @@ public class GraphsService : IGraphsService
         return new AxesCollection() { axis };
     }
 
-    private AxesCollection GetYAxis()
+    private AxesCollection GetYAxis() => new()
     {
-        return new()
+        new Axis()
         {
-            new Axis()
+            MinValue = 0,
+            Separator = new Separator()
             {
-                MinValue = 0,
-                Separator = new Separator()
-                {
-                    Step = 1,
-                    Stroke = _coorporateDesignService.colGrid
-                },
-            }
-        };
-    }
+                Step = 1,
+                Stroke = _coorporateDesignService.colGrid
+            },
+        }
+    };
 }
