@@ -169,7 +169,7 @@ public class ProjectViewModel : BaseViewModel
 
         CutterCards.Clear();
 
-        var cutters = _cutterAccessLayer.GetAnalysedCutters(projectId: SelectedProject.Id, search: search);
+        var cutters = _cutterAccessLayer.GetAnalysedCutters(projectId: SelectedProject.Id, search: search).ToList();
         cutters.ForEach(cutter => CutterCards.Add(new CutterCard() { Cutter = cutter }));
         OnPropertyChanged(nameof(CutterCards));
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SealWatch.Code.Enums;
+using SealWatch.Code.Extensions;
 using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Data.Database;
 using SealWatch.Data.Model;
@@ -7,25 +8,31 @@ using Serilog;
 
 namespace SealWatch.Code.ProjectLayer;
 
+/// <summary>
+/// Access Layer between Front-End and DataLayer (Database)
+/// </summary>
 public class ProjectAccessLayer : IProjectAccessLayer
 {
-    public List<ProjectListDto> GetList(string? search = null, Visibility visibility = Visibility.All)
+    /// <summary>
+    /// Generates a sequence of cutters if cutters available
+    /// </summary>
+    /// <returns>Sequence of Cutter or Enumerable.Empty<T></returns>
+
+    /// <summary>
+    /// Generates a sequence of projects if projects available
+    /// Parameter null checking in AccessLayerQueryHelpers
+    /// </summary>
+    /// <param name="search">Search text for project location</param>
+    /// <param name="visibility">Searches depending on all, done & deleted</param>
+    /// <returns>Sequence of ProjectListDto</returns>
+    public IEnumerable<ProjectListDto> GetList(string? search = null, Visibility visibility = Visibility.All)
     {
-        using var context = SealWatchDbContext.NewContext();
+        var projects = SealWatchDbContext.NewContext()
+            .Set<Project>()
+            .Include(item => item.Cutters);
 
-        var projects = context.Set<Project>().Include(item => item.Cutters).ToList();
-
-        if (visibility is Visibility.All)
-            projects = projects.Where(x => !x.IsDone && !x.IsDeleted).ToList();
-
-        if (visibility is Visibility.Deleted)
-            projects = projects.Where(x => x.IsDeleted).ToList();
-
-        if (visibility is Visibility.Done)
-            projects = projects.Where(x => x.IsDone).ToList();
-
-        if (search is not null)
-            projects = projects.Where(x => x.Location.ToLower().Contains(search.ToLower())).ToList();
+        projects = projects.FilterVisibility(visibility);
+        projects = projects.FilterSerialNumber(search);
 
         return projects.Select(item => new ProjectListDto()
         {
@@ -40,14 +47,23 @@ public class ProjectAccessLayer : IProjectAccessLayer
         }).ToList();
     }
 
-    public ProjectEditDto GetEditData(int id)
-    {
-        using var context = SealWatchDbContext.NewContext();
+    /// <summary>
+    /// Generates a template for editing a project
+    /// based on given id
+    /// </summary>
+    /// <param name="id">Requested Project Id</param>
+    /// <returns>Dto for editing</returns>
 
-        var projects = context.Set<Project>().Include(x => x.Cutters);
-        var project = projects.First(x => x.Id == id);
+    //  ToDo: check null for receiving from function
+    public ProjectEditDto? GetEditData(int id)
+    {
+        Project? project = SealWatchDbContext.NewContext()
+            .Set<Project>()
+            .Include(x => x.Cutters)
+            .FirstOrDefault(x => x.Id == id);
+
         if (project is null)
-            return new();
+            return null;
 
         return new ProjectEditDto()
         {
@@ -59,16 +75,22 @@ public class ProjectAccessLayer : IProjectAccessLayer
             Cutters = project.Cutters
         };
     }
+    /// <summary>
+    /// Generates a template for viewing project details
+    /// </summary>
+    /// <param name="id">Requested Project Id</param>
+    /// <returns></returns>
 
-    public ProjectDetailDto GetDetails(int id)
+    //  ToDo: check null for receiving from function
+    public ProjectDetailDto? GetDetails(int id)
     {
-        using var context = SealWatchDbContext.NewContext();
-
-        var projects = context.Set<Project>().Include(item => item.Cutters);
-        var project = projects.FirstOrDefault(x => x.Id == id);
+        Project? project = SealWatchDbContext.NewContext()
+            .Set<Project>()
+            .Include(item => item.Cutters)
+            .FirstOrDefault(x => x.Id == id);
 
         if (project is null)
-            return new();
+            return null;
 
         return new ProjectDetailDto()
         {
@@ -82,46 +104,58 @@ public class ProjectAccessLayer : IProjectAccessLayer
             IsDone = project.IsDone,
 
             ChangeDate = project.ChangeDate,
-            ChangeUser = project.ChangeUser,
             CreateDate = project.CreateDate,
             CreateUser = project.CreateUser,
             DeleteDate = project.DeleteDate,
-            DeleteUser = project.DeleteUser,
+            ChangeUser = project.ChangeUser is null ? String.Empty : project.ChangeUser,
+            DeleteUser = project.DeleteUser is null ? String.Empty : project.DeleteUser,
         };
     }
 
-    public void CreateOrUpdate(ProjectEditDto? projectDto)
+    /// <summary>
+    /// Searches for existingProject and rewrites changes
+    /// If project wasn't found creates new and writes changes
+    /// </summary>
+    /// <param name="projectDto">Project template to add/edit</param>
+    public void AddOrEdit(ProjectEditDto? projectDto)
     {
         if (projectDto is null)
             return;
 
-        //  Remove time from DateTime for accurate calculations in AnalyseServices
-        projectDto.StartDate = new(projectDto.StartDate.Year, projectDto.StartDate.Month, projectDto.StartDate.Day);
+        var context = SealWatchDbContext.NewContext();
+        Project? project = context
+            .Set<Project>()
+            .Find(projectDto?.Id);
 
-        using var context = SealWatchDbContext.NewContext();
-
-        var project = context.Set<Project>().Find(projectDto?.Id);
         if (project is null)
         {
             project = new();
             context.Add(project);
         }
 
+        if (projectDto is null)
+            return;
+
         project.Location = projectDto.Location;
         project.Blades = projectDto.Blades;
         project.SlitDepth_m = projectDto.SlitDepth_m;
-        project.StartDate = projectDto.StartDate;
+        project.StartDate = projectDto.StartDate.RemoveTime();
+
         context.SaveChanges();
     }
 
+    /// <summary>
+    /// Removes project
+    /// </summary>
+    /// <param name="id">Requested project id</param>
     public void Remove(int id)
     {
-        using var context = SealWatchDbContext.NewContext();
+        var context = SealWatchDbContext.NewContext();
 
-        var project = context.Set<Project>().Find(id);
+        Project? project = context.Set<Project>().Find(id);
         if (project is null)
         {
-            Log.Error($"ProjectAccessLayer - Remove | Tried to remove non-existing project - ID: {id}");
+            Log.Error($"Tried to remove non-existing project - ID: {id}");
             return;
         }
 
@@ -129,14 +163,18 @@ public class ProjectAccessLayer : IProjectAccessLayer
         context.SaveChanges();
     }
 
+    /// <summary>
+    /// Marks project as done
+    /// </summary>
+    /// <param name="id">Requested project id</param>
     public void Done(int id)
     {
-        using var context = SealWatchDbContext.NewContext();
+        var context = SealWatchDbContext.NewContext();
 
-        var project = context.Set<Project>().Find(id);
+        Project? project = context.Set<Project>().Find(id);
         if (project is null)
         {
-            Log.Error($"ProjectAccessLayer - Done | Tried to mark non-existing project as done - ID: {id}");
+            Log.Error($"Tried to mark non-existing project as done - ID: {id}");
             return;
         }
 
@@ -144,14 +182,19 @@ public class ProjectAccessLayer : IProjectAccessLayer
         context.SaveChanges();
     }
 
+    /// <summary>
+    /// Checks if project exists
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public bool ProjectExists(int id)
     {
-        using var context = SealWatchDbContext.NewContext();
-        return context.Set<Project>().Find(id) is null ? false : true;
+        Project? project = SealWatchDbContext.NewContext()
+            .Set<Project>()
+            .Find(id);
+
+        return project is not null;
     }
 
-    public Guid GetGuid()
-    {
-        return typeof(Project).GUID;
-    }
+    public Guid GetGuid() => typeof(Project).GUID;
 }

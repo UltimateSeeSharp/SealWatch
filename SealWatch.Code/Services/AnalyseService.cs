@@ -1,4 +1,5 @@
 ﻿using SealWatch.Code.CutterLayer;
+using SealWatch.Code.Services.Interface;
 using Serilog;
 
 namespace SealWatch.Code.Services;

@@ -6,10 +6,10 @@ namespace SealWatch.Code.ProjectLayer.Intefaces;
 
 public interface IProjectAccessLayer
 {
-    List<ProjectListDto> GetList(string? search = null, Visibility visibility = Visibility.All);
+    IEnumerable<ProjectListDto> GetList(string? search = null, Visibility visibility = Visibility.All);
     ProjectEditDto GetEditData(int id);
     ProjectDetailDto GetDetails(int id);
-    void CreateOrUpdate(ProjectEditDto dtoItem);
+    void AddOrEdit(ProjectEditDto dtoItem);
     void Remove(int id);
     void Done(int id);
     bool ProjectExists(int id);

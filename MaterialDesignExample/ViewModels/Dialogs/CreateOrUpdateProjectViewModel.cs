@@ -57,7 +57,7 @@ public class CreateOrUpdateProjectViewModel : BaseViewModel
                 return;
             }
 
-            _projectAccessLayer.CreateOrUpdate(Project);
+            _projectAccessLayer.AddOrEdit(Project);
             CloseWindow!.Invoke(this, EventArgs.Empty);
         }
     };

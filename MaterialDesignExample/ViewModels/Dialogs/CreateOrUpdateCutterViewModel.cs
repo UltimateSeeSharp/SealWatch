@@ -30,7 +30,7 @@ public class CreateOrUpdateCutterViewModel : BaseViewModel
     public int ProjectId { get; set; }
     public string WindowTitle => Id is 0 ? "Fräse hinzufügen" : "Fräse editieren";
 
-    public List<string> SoilTypeList => _cutterAccessLayer.GetSoilTypes();
+    public List<String> SoilTypeList => _cutterAccessLayer.GetSoilTypes().ToList();
 
     private CutterEditDto _cutter = new() { SoilType = "Normaler Boden"};
     public CutterEditDto Cutter
@@ -76,4 +76,8 @@ public class CreateOrUpdateCutterViewModel : BaseViewModel
     {
         CommandAction = () => CloseWindow!.Invoke(this, EventArgs.Empty)
     };
+}
+
+public class ObserveableCollection<T>
+{
 }

@@ -1,6 +1,6 @@
 ﻿using SealWatch.Code.CutterLayer;
 
-namespace SealWatch.Code.Services;
+namespace SealWatch.Code.Services.Interface;
 
 public interface IAnalyseService
 {

@@ -9,6 +9,7 @@ using SealWatch.Code.HistoryLayer.Interfaces;
 using SealWatch.Code.ProjectLayer;
 using SealWatch.Code.ProjectLayer.Intefaces;
 using SealWatch.Code.Services;
+using SealWatch.Code.Services.Interface;
 using SealWatch.Data.Database;
 using SealWatch.Wpf.Config;
 using SealWatch.Wpf.Service;
@@ -35,9 +36,7 @@ public static class Bootstrapper
 
         _container = builder.Build();
 
-        var appSettings = _container.Resolve<AppSettings>();
-
-        if (appSettings.ShouldMock)
+        if (_container.Resolve<AppSettings>().ShouldMock)
             MockHelper.Mock(SealWatchDbContext.NewContext());
     }
 
@@ -62,6 +61,8 @@ public static class Bootstrapper
 
         //  Services
 
+        builder.RegisterType<AnalyseService>().As<IAnalyseService>();
+
         builder.RegisterType<UserInputService>().As<IUserInputService>();
         builder.RegisterType<DesignService>().As<IDesignService>();
         builder.RegisterType<GraphsService>().As<IGraphsService>();
@@ -69,7 +70,7 @@ public static class Bootstrapper
 
         builder.RegisterType<ProjectAccessLayer>().As<IProjectAccessLayer>();
         builder.RegisterType<HistoryAccessLayer>().As<IHistoryAccessLayer>();
-        builder.Register<ICutterAccessLayer>(x => new CutterAccessLayer(appSettings.Accuracy));
+        builder.Register<ICutterAccessLayer>(x => new CutterAccessLayer(new AnalyseService(), appSettings.Accuracy));
 
         builder.RegisterType<Random>().SingleInstance();
 
